@@ -16,11 +16,11 @@ if __name__ == '__main__':
 
     # exercise 1
     first_exercise_results_file = open(os.path.join(results_data_dir_name, results_files[0]), "w", newline='')
-    and_data:List[List[int]] = np.array([[-1, 1], [1, -1], [-1, -1], [1, 1]])
-    and_labels:List[int] = np.array([-1, -1, -1, 1])
+    and_x_values:List[List[int]] = np.array([[-1, 1], [1, -1], [-1, -1], [1, 1]])
+    and_y_values:List[int] = np.array([-1, -1, -1, 1])
 
-    xor_data:List[List[int]] = np.array([[-1, 1], [1, -1], [-1, -1], [1, 1]])
-    xor_labels:List[int] = np.array([1, 1, -1, -1])
+    xor_x_values:List[List[int]] = np.array([[-1, 1], [1, -1], [-1, -1], [1, 1]])
+    xor_y_values:List[int] = np.array([1, 1, -1, -1])
 
     seed:int = 43
     learning_rates:List[float] = [0.1, 0.05, 0.01]
@@ -31,11 +31,11 @@ if __name__ == '__main__':
 
     for learning_rate in learning_rates:
         for epoch_amount in epochs:
-            and_simple_perceptron = Perceptron(len(and_data[0]), learning_rate, epoch_amount, step)
-            and_breaking_epoch, and_training_error = and_simple_perceptron.train(and_data, and_labels, squared_error, 1.0, first_exercise_results_file, "and")
+            and_simple_perceptron = Perceptron(len(and_x_values[0]), learning_rate, epoch_amount, step)
+            and_breaking_epoch, and_training_error = and_simple_perceptron.train(and_x_values, and_y_values, squared_error, 1.0, first_exercise_results_file, "and")
 
-            xor_simple_perceptron = Perceptron(len(xor_data[0]), learning_rate, epoch_amount, step)            
-            xor_breaking_epoch, xor_training_error = xor_simple_perceptron.train(xor_data, xor_labels, squared_error, 1.0, first_exercise_results_file, "xor")
+            xor_simple_perceptron = Perceptron(len(xor_x_values[0]), learning_rate, epoch_amount, step)            
+            xor_breaking_epoch, xor_training_error = xor_simple_perceptron.train(xor_x_values, xor_y_values, squared_error, 1.0, first_exercise_results_file, "xor")
 
     plots_for_exercise_1(os.path.join(results_data_dir_name, results_files[0]))
 
