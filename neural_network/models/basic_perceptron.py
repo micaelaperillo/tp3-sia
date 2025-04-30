@@ -11,6 +11,7 @@ class Perceptron:
         self.learning_rate = learning_rate
         self.epochs = epochs
         self.activation_function = activation_function
+        self.seed = seed_value
         np.random.seed(seed_value)
         # we used weights[0] as bias b
         # we multiply by 0.1 to get even smaller numbers
@@ -22,7 +23,7 @@ class Perceptron:
         h_star = np.dot(self.weights, input_set) 
         return self.activation_function(h_star)
 
-    def linear_training(self, training_set:List[List[int]], labels:List[int], max_acceptable_error:float = 0.9):
+    def linear_training(self, training_set:List[List[int]], labels:List[int], file, method:str, max_acceptable_error:float = 0.9):
         for epoch in range(self.epochs):
             errors = []
             for data_instance, label in zip(training_set, labels):
@@ -39,6 +40,7 @@ class Perceptron:
 
             squared_errors = np.array(errors) ** 2
             perceptron_error = 0.5 * np.sum(squared_errors)
+            file.write(f"{self.seed},{method},{self.learning_rate},{epoch},{perceptron_error}\n")
             if perceptron_error < max_acceptable_error:
                 return epoch + 1, perceptron_error
         
