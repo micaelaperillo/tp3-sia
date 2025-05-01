@@ -1,12 +1,15 @@
+from typing import Callable
 import numpy as np
 
-def step(x:float)->float:
+ActivationFunctionType = Callable[[float, float], float]
+
+def step(x:float, beta:float=1.0)->float:
     return 1 if x > 0 else -1
 
-def identity(x:float)->float:
+def identity(x:float, beta:float=1.0)->float:
     return x
 
-def prime_identity(x:float)->float:
+def prime_identity(x:float, beta:float=1.0)->float:
     return 1
 
 def tanh(x:float, beta:float)->float:
