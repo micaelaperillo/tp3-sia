@@ -8,9 +8,8 @@ from typing import List
 if not os.path.exists("graphs"):
     os.makedirs("graphs")
 
-def plots_for_exercise_1(results_file:str):
+def plots_for_exercise_1(results_file:str, learning_rates:List[float]):
     df_for_exercise_1 = pd.read_csv(results_file)
-    learning_rates:List[float] = [0.1, 0.05, 0.01]
     for learning_rate in learning_rates: 
         plot_training_error_vs_epoch_for_each_method(df_for_exercise_1, 43, learning_rate)
 
