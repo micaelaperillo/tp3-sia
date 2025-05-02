@@ -20,7 +20,7 @@ class Perceptron:
         h_supra_mu = np.dot(self.weights, input_set) 
         return self.activation_function(h_supra_mu, beta), h_supra_mu
 
-    def train(self, training_set:List[List[int]], labels:List[int], learning_rate:float, epochs:int, error_function:ErrorFunctionType, max_acceptable_error:float,file, method:str, is_activation_derivable=False, beta:float= 1.0):
+    def train(self, training_set:List[List[int]], labels:List[int], learning_rate:float, epochs:int, error_function:ErrorFunctionType, max_acceptable_error:float,file, method:str, is_activation_derivable=False, beta:float= 1.0, partition:int=0):
         for epoch in range(epochs):
             errors = []
             for data_instance, label in zip(training_set, labels):
@@ -38,7 +38,7 @@ class Perceptron:
                     self.weights += delta_w
 
             perceptron_error = error_function(np.array(errors))
-            file.write(f"{self.seed},{method},{learning_rate},{epoch},{perceptron_error}\n")
+            file.write(f"{self.seed},{partition},{self.weights},{method},{beta},{learning_rate},{epoch},{perceptron_error}\n")
             if perceptron_error < max_acceptable_error:
                 return epoch + 1, perceptron_error
         

@@ -29,7 +29,7 @@ if __name__ == '__main__':
     epochs:List[int] = [200]
 
     # by storing the seed we get which weights are being used initially
-    first_exercise_results_file.write(f"seed,method,learning_rate,epochs,error\n")
+    first_exercise_results_file.write(f"seed,partition,weights,method,beta,learning_rate,epochs,error\n")
 
     for learning_rate in learning_rates:
         for epoch_amount in epochs:
@@ -57,7 +57,7 @@ if __name__ == '__main__':
     epochs:List[int] = [200]
 
     second_exercise_training_results_file = open(os.path.join(results_data_dir_name, results_files[1]), "w", newline='')
-    second_exercise_training_results_file.write(f"seed,activation_function,learning_rate,epochs,error\n")
+    second_exercise_training_results_file.write(f"seed,partition,weights,activation_function,beta,learning_rate,epochs,error\n")
     second_exercise_results_file = open(os.path.join(results_data_dir_name, "ej2_data_errors.csv"), "w", newline='')
     second_exercise_results_file.write(f"seed,activation_function,beta,learning_rate,epochs,error_method,training_mean_error,training_error_std,training_data_mean_prediction_error,training_data_prediction_error_std,testing_data_mean_prediction_error,testing_data_prediction_error_std\n")
 
@@ -69,12 +69,12 @@ if __name__ == '__main__':
     testing_data_prediction_errors = []
     for learning_rate in learning_rates:
         for epoch_amount in epochs:
-            for configuration in training_testing_pairs:
+            for partition_index, configuration in enumerate(training_testing_pairs):
                 training_set = configuration[0]
                 testing_set = configuration[1]
 
                 perceptron = Perceptron(len(x_values[0]), identity, prime_identity)
-                breaking_epoch, training_error = perceptron.train(training_set[0], training_set[1], learning_rate, epoch_amount,squared_error, 0.9, second_exercise_training_results_file, "identity", True)
+                breaking_epoch, training_error = perceptron.train(training_set[0], training_set[1], learning_rate, epoch_amount,squared_error, 0.9, second_exercise_training_results_file, "identity", True,1.0,partition_index+1)
                 training_errors.append(training_error)
 
                 training_data_prediction_error = get_prediction_error(perceptron, training_set[0], training_set[1], squared_error)
@@ -100,11 +100,11 @@ if __name__ == '__main__':
     for learning_rate in learning_rates:
         for epoch_amount in epochs:
             for beta in beta_values_for_linear:
-                for configuration in training_testing_pairs:
+                for partition_index,configuration in enumerate(training_testing_pairs):
                     training_set = configuration[0]
                     testing_set = configuration[1]
                     perceptron = Perceptron(len(x_values[0]), tanh, prime_tanh)
-                    breaking_epoch, training_error = perceptron.train(training_set[0], training_set[1], learning_rate, epoch_amount, squared_error, 0.9, second_exercise_training_results_file, f"tanh_linear_b_{beta}", True, beta)
+                    breaking_epoch, training_error = perceptron.train(training_set[0], training_set[1], learning_rate, epoch_amount, squared_error, 0.9, second_exercise_training_results_file, f"tanh_linear_b_{beta}", True, beta, partition_index+1)
                     training_errors.append(training_error)
 
                     training_data_prediction_error = get_prediction_error(perceptron, training_set[0], training_set[1], squared_error)
@@ -129,11 +129,11 @@ if __name__ == '__main__':
     for learning_rate in learning_rates:
         for epoch_amount in epochs:
             for beta in beta_values_for_linear:
-                for configuration in training_testing_pairs:
+                for partition_index,configuration in enumerate(training_testing_pairs):
                     training_set = configuration[0]
                     testing_set = configuration[1]
                     perceptron = Perceptron(len(x_values[0]), tanh, prime_tanh)
-                    breaking_epoch, training_error = perceptron.train(training_set[0], training_set[1], learning_rate, epoch_amount, squared_error, 0.9, second_exercise_training_results_file, "tanh_non_linear", True, beta)
+                    breaking_epoch, training_error = perceptron.train(training_set[0], training_set[1], learning_rate, epoch_amount, squared_error, 0.9, second_exercise_training_results_file, "tanh_non_linear", True, beta, partition_index+1)
                     training_errors.append(training_error)
 
                     training_data_prediction_error = get_prediction_error(perceptron, training_set[0], training_set[1], squared_error)
@@ -157,11 +157,11 @@ if __name__ == '__main__':
     for learning_rate in learning_rates:
         for epoch_amount in epochs:
             for beta in beta_values_for_linear:
-                for configuration in training_testing_pairs:
+                for partition_index,configuration in enumerate(training_testing_pairs):
                     training_set = configuration[0]
                     testing_set = configuration[1]
                     perceptron = Perceptron(len(x_values[0]), logistic, prime_logistic)
-                    breaking_epoch, training_error = perceptron.train(training_set[0], training_set[1], learning_rate, epoch_amount,squared_error, 0.9, second_exercise_training_results_file, "logistic", True, beta)
+                    breaking_epoch, training_error = perceptron.train(training_set[0], training_set[1], learning_rate, epoch_amount,squared_error, 0.9, second_exercise_training_results_file, "logistic", True, beta, partition_index+1)
                     training_errors.append(training_error)
 
                     training_data_prediction_error = get_prediction_error(perceptron, training_set[0], training_set[1], squared_error)
