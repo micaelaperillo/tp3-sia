@@ -25,7 +25,7 @@ if __name__ == '__main__':
     xor_y_values:List[int] = np.array([1, 1, -1, -1])
 
     seed:int = 43
-    learning_rates:List[float] = [0.1, 0.05, 0.01]
+    learning_rates:List[float] = [0.0001, 0.00005, 0.00001]
     epochs:List[int] = [200]
 
     # by storing the seed we get which weights are being used initially
@@ -33,13 +33,13 @@ if __name__ == '__main__':
 
     for learning_rate in learning_rates:
         for epoch_amount in epochs:
-            and_simple_perceptron = Perceptron(len(and_x_values[0]), learning_rate, epoch_amount, step)
-            and_breaking_epoch, and_training_error = and_simple_perceptron.train(and_x_values, and_y_values, squared_error, 1.0, first_exercise_results_file, "and")
+            and_simple_perceptron = Perceptron(len(and_x_values[0]), step)
+            and_breaking_epoch, and_training_error = and_simple_perceptron.train(and_x_values, and_y_values, learning_rate, epoch_amount, squared_error, 1.0, first_exercise_results_file, "and")
 
-            xor_simple_perceptron = Perceptron(len(xor_x_values[0]), learning_rate, epoch_amount, step)            
-            xor_breaking_epoch, xor_training_error = xor_simple_perceptron.train(xor_x_values, xor_y_values, squared_error, 1.0, first_exercise_results_file, "xor")
+            xor_simple_perceptron = Perceptron(len(xor_x_values[0]), step)            
+            xor_breaking_epoch, xor_training_error = xor_simple_perceptron.train(xor_x_values, xor_y_values, learning_rate, epoch_amount, squared_error, 1.0, first_exercise_results_file, "xor")
 
-    plots_for_exercise_1(os.path.join(results_data_dir_name, results_files[0]))
+    plots_for_exercise_1(os.path.join(results_data_dir_name, results_files[0]), learning_rates)
 
     # exercise 2
     input_data_dir_name = "input_data"
@@ -53,7 +53,7 @@ if __name__ == '__main__':
     k = 5
     training_testing_pairs = k_cross_validation(k, x_values, y_values)
     seed:int = 43
-    learning_rates:List[float] = [0.1, 0.05, 0.01]
+    learning_rates:List[float] = [0.0001, 0.00005, 0.00001]
     epochs:List[int] = [200]
 
     second_exercise_training_results_file = open(os.path.join(results_data_dir_name, results_files[1]), "w", newline='')
@@ -73,8 +73,8 @@ if __name__ == '__main__':
                 training_set = configuration[0]
                 testing_set = configuration[1]
 
-                perceptron = Perceptron(len(x_values[0]), learning_rate, epoch_amount, identity, prime_identity)
-                breaking_epoch, training_error = perceptron.train(training_set[0], training_set[1], squared_error, 0.9, second_exercise_results_file, "identity", True)
+                perceptron = Perceptron(len(x_values[0]), identity, prime_identity)
+                breaking_epoch, training_error = perceptron.train(training_set[0], training_set[1], learning_rate, epoch_amount,squared_error, 0.9, second_exercise_training_results_file, "identity", True)
                 training_errors.append(training_error)
 
                 training_data_prediction_error = get_prediction_error(perceptron, training_set[0], training_set[1], squared_error)
@@ -103,8 +103,8 @@ if __name__ == '__main__':
                 for configuration in training_testing_pairs:
                     training_set = configuration[0]
                     testing_set = configuration[1]
-                    perceptron = Perceptron(len(x_values[0]), learning_rate, epoch_amount, tanh, prime_tanh)
-                    breaking_epoch, training_error = perceptron.train(training_set[0], training_set[1], squared_error, 0.9, second_exercise_results_file, f"tanh_linear_b_{beta}", True, beta)
+                    perceptron = Perceptron(len(x_values[0]), tanh, prime_tanh)
+                    breaking_epoch, training_error = perceptron.train(training_set[0], training_set[1], learning_rate, epoch_amount, squared_error, 0.9, second_exercise_training_results_file, f"tanh_linear_b_{beta}", True, beta)
                     training_errors.append(training_error)
 
                     training_data_prediction_error = get_prediction_error(perceptron, training_set[0], training_set[1], squared_error)
@@ -132,8 +132,8 @@ if __name__ == '__main__':
                 for configuration in training_testing_pairs:
                     training_set = configuration[0]
                     testing_set = configuration[1]
-                    perceptron = Perceptron(len(x_values[0]), learning_rate, epoch_amount, tanh, prime_tanh)
-                    breaking_epoch, training_error = perceptron.train(training_set[0], training_set[1], squared_error, 0.9, second_exercise_results_file, "tanh_non_linear", True, beta)
+                    perceptron = Perceptron(len(x_values[0]), tanh, prime_tanh)
+                    breaking_epoch, training_error = perceptron.train(training_set[0], training_set[1], learning_rate, epoch_amount, squared_error, 0.9, second_exercise_training_results_file, "tanh_non_linear", True, beta)
                     training_errors.append(training_error)
 
                     training_data_prediction_error = get_prediction_error(perceptron, training_set[0], training_set[1], squared_error)
@@ -160,8 +160,8 @@ if __name__ == '__main__':
                 for configuration in training_testing_pairs:
                     training_set = configuration[0]
                     testing_set = configuration[1]
-                    perceptron = Perceptron(len(x_values[0]), learning_rate, epoch_amount, logistic, prime_logistic)
-                    breaking_epoch, training_error = perceptron.train(training_set[0], training_set[1], squared_error, 0.9, second_exercise_results_file, "logistic", True, beta)
+                    perceptron = Perceptron(len(x_values[0]), logistic, prime_logistic)
+                    breaking_epoch, training_error = perceptron.train(training_set[0], training_set[1], learning_rate, epoch_amount,squared_error, 0.9, second_exercise_training_results_file, "logistic", True, beta)
                     training_errors.append(training_error)
 
                     training_data_prediction_error = get_prediction_error(perceptron, training_set[0], training_set[1], squared_error)
