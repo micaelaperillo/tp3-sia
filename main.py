@@ -3,7 +3,7 @@ import numpy as np
 import pandas as pd
 from typing import List
 from neural_network.models.basic_perceptron import Perceptron
-from stats import plots_for_exercise_1
+from stats import plots_for_exercise_1, graph_decision_boundary
 from neural_network.activation_functions import step, identity, prime_identity, tanh, prime_tanh, logistic, prime_logistic
 from neural_network.error_functions import squared_error
 from partition_methods import k_cross_validation
@@ -35,9 +35,11 @@ if __name__ == '__main__':
         for epoch_amount in epochs:
             and_simple_perceptron = Perceptron(len(and_x_values[0]), step)
             and_breaking_epoch, and_training_error = and_simple_perceptron.train(and_x_values, and_y_values, learning_rate, epoch_amount, squared_error, 1.0, first_exercise_results_file, "and")
+            graph_decision_boundary(and_x_values, and_y_values, and_simple_perceptron.weights, f"Frontera de decisión AND: tasa:{learning_rate}, epochs:{and_breaking_epoch}", f"and_decision_boundary_tasa_{learning_rate}_epochs_{epoch_amount}.png")
 
             xor_simple_perceptron = Perceptron(len(xor_x_values[0]), step)            
             xor_breaking_epoch, xor_training_error = xor_simple_perceptron.train(xor_x_values, xor_y_values, learning_rate, epoch_amount, squared_error, 1.0, first_exercise_results_file, "xor")
+            graph_decision_boundary(xor_x_values, xor_y_values, xor_simple_perceptron.weights, f"Frontera de decisión XOR: tasa:{learning_rate}, epochs:{xor_breaking_epoch}", f"xor_decision_boundary_tasa_{learning_rate}_epochs_{epoch_amount}.png")
 
     plots_for_exercise_1(os.path.join(results_data_dir_name, results_files[0]), learning_rates)
 
