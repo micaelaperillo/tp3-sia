@@ -6,7 +6,8 @@ import matplotlib.pyplot as plt
 from typing import List
 import numpy as np
 from matplotlib.lines import Line2D
-
+from mpl_toolkits.mplot3d import Axes3D
+from matplotlib.animation import FuncAnimation
 
 if not os.path.exists("graphs"):
     os.makedirs("graphs")
@@ -80,8 +81,34 @@ def graph_decision_boundary(x, y, weights, title = "Frontera de decisión", save
     plt.yticks(np.arange(-2, 3, 1))
     plt.xlim(-2, 2)
     plt.ylim(-2, 2)
-    plt.savefig("graphs/" + save_name + ".png")
+    plt.savefig("graphs/decision boundaries/" + save_name + ".png")
 
+
+def plot_regression_plane(x, y, weights, title = "Plano de regresión", save_name="regression_plane"):
+    x1 = np.array([xi[0] for xi in x])
+    x2 = np.array([xi[1] for xi in x])
+    x3 = np.array([xi[2] for xi in x])
+    bias = weights[0]
+    w1 = weights[1]
+    w2 = weights[2]
+    w3 = weights[3]
+
+    fig = plt.figure()
+    ax = fig.add_subplot(111, projection='3d')
+
+    ax.scatter(x1, x2, x3, c=y, cmap='viridis', marker='o', label='Datos reales')
+
+    x1_range = np.linspace(min(x1), max(x1), 10)
+    x2_range = np.linspace(min(x2), max(x2), 10)
+    x1_grid, x2_grid = np.meshgrid(x1_range, x2_range)
+    x3_grid = -(w1 * x1_grid + w2 * x2_grid + bias) / w3
+    ax.plot_surface(x1_grid, x2_grid, x3_grid, alpha=0.5, color='orange', label='Plano de regresión')
+
+    ax.set_xlabel('x1')
+    ax.set_ylabel('x2')
+    ax.set_zlabel('x3')
+    plt.title(title)
+    plt.savefig("graphs/decision boundaries/" + save_name + ".png")
 
 if __name__ == '__main__':
     results_files:List[str] = ["ej1_data.csv", "ej2_data.csv", "ej3_data.csv", "ej4_data.csv"]
