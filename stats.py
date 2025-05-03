@@ -8,6 +8,7 @@ import numpy as np
 from matplotlib.lines import Line2D
 from mpl_toolkits.mplot3d import Axes3D
 from matplotlib import animation
+from stats_utils import load_ej1_weights_from_csv, load_ej1_weights_from_csv, load_ej2_weights_from_csv
 
 
 if not os.path.exists("graphs"):
@@ -112,24 +113,8 @@ def plot_regression_plane(x, y, weights, title = "Plano de regresión", save_nam
     plt.savefig("graphs/decision boundaries/" + save_name + ".png")
 
 
-def parse_weights(weights_str):
-    weights_str = weights_str.strip()[1:-1]
-    return np.array([float(w) for w in weights_str.split()])
-
-
-def load_weights_from_csv(filepath: str, method: str, learning_rate: float):
-    df = pd.read_csv(filepath)
-
-    filtered = df[(df["method"] == method) & (df["learning_rate"] == learning_rate)]
-    filtered = filtered.sort_values(by="epochs").reset_index(drop=True)
-
-    indices = np.linspace(0, len(filtered) - 1, num=10, dtype=int)
-    sampled_weights = filtered.loc[indices, "weights"].apply(parse_weights).to_list()
-    return sampled_weights
-
-
-def animate_decision_boundary_2D(x, y, method, learning_rate, title = "Frontera de decisión", save_name="animated_decision_boundary"):
-    weights_list = load_weights_from_csv("output_data/ej1_data.csv", method, learning_rate)
+def animate_decision_boundary_2D(x, y, method, learning_rate, title = "Animación frontera de decisión", save_name="animated_decision_boundary"):
+    weights_list = load_ej1_weights_from_csv("output_data/ej1_data.csv", method, learning_rate)
 
     fig, ax = plt.subplots()
 
@@ -163,4 +148,6 @@ def animate_decision_boundary_2D(x, y, method, learning_rate, title = "Frontera 
 if __name__ == '__main__':
     #results_files:List[str] = ["ej1_data.csv", "ej2_data.csv", "ej3_data.csv", "ej4_data.csv"]
     #plots_for_exercise_1(os.path.join("data", results_files[0]))
-    animate_decision_boundary_2D(np.array([[-1, -1], [1, 1], [-1, 1], [1, -1]]), np.array([-1, 1, -1, -1]), "and", 0.0001)
+    animate_decision_boundary_2D(np.array([[-1, 1], [1, -1], [-1, -1], [1, 1]]), np.array([-1, -1, -1, 1]), "and", 0.0001, "Frontera de decisión AND", "animated_and_decision_boundary")
+    animate_decision_boundary_2D(np.array([[-1, 1], [1, -1], [-1, -1], [1, 1]]), np.array([1, 1, -1, -1]), "xor", 0.0001, "Frontera de decisión XOR", "animated_xor_decision_boundary")
+
