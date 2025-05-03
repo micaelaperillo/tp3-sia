@@ -7,7 +7,8 @@ from typing import List
 import numpy as np
 from matplotlib.lines import Line2D
 from mpl_toolkits.mplot3d import Axes3D
-from matplotlib.animation import FuncAnimation
+from matplotlib import animation
+
 
 if not os.path.exists("graphs"):
     os.makedirs("graphs")
@@ -110,6 +111,56 @@ def plot_regression_plane(x, y, weights, title = "Plano de regresión", save_nam
     plt.title(title)
     plt.savefig("graphs/decision boundaries/" + save_name + ".png")
 
+
+def parse_weights(weights_str):
+    weights_str = weights_str.strip()[1:-1]
+    return np.array([float(w) for w in weights_str.split()])
+
+
+def load_weights_from_csv(filepath: str, method: str, learning_rate: float):
+    df = pd.read_csv(filepath)
+
+    filtered = df[(df["method"] == method) & (df["learning_rate"] == learning_rate)]
+    filtered = filtered.sort_values(by="epochs").reset_index(drop=True)
+
+    indices = np.linspace(0, len(filtered) - 1, num=10, dtype=int)
+    sampled_weights = filtered.loc[indices, "weights"].apply(parse_weights).to_list()
+    return sampled_weights
+
+
+def animate_decision_boundary_2D(x, y, method, learning_rate, title = "Frontera de decisión", save_name="animated_decision_boundary"):
+    weights_list = load_weights_from_csv("output_data/ej1_data.csv", method, learning_rate)
+
+    fig, ax = plt.subplots()
+
+    x_vals = np.linspace(x[:, 0].min(), x[:, 0].max(), 200)
+    line, = ax.plot([], [], 'k-')
+    
+    def update(frame):
+        w = weights_list[frame]
+        if w[2] == 0:
+            line.set_data([], [])  
+        else:
+            y_vals = -(w[1] * x_vals + w[0]) / w[2]
+            line.set_data(x_vals, y_vals)
+        return line,
+
+    ax.scatter(x[:, 0], x[:, 1], c=y, cmap='coolwarm', edgecolors='k')
+    ax.axhline(0, color='gray', linestyle='--')
+    ax.axvline(0, color='gray', linestyle='--')
+    plt.xlabel('Valor 1')
+    plt.ylabel('Valor 2')
+    plt.title(title)
+    plt.grid(True, color='gray', linestyle='-', linewidth=0.5, alpha=0.8)
+    plt.xticks(np.arange(-2, 3, 1))
+    plt.yticks(np.arange(-2, 3, 1))
+    plt.xlim(-2, 2)
+    plt.ylim(-2, 2)
+
+    ani = animation.FuncAnimation(fig, update, frames=len(weights_list), interval=700, repeat=False)
+    ani.save("graphs/animations/" + save_name + ".gif", writer="pillow", fps=2)
+
 if __name__ == '__main__':
-    results_files:List[str] = ["ej1_data.csv", "ej2_data.csv", "ej3_data.csv", "ej4_data.csv"]
-    plots_for_exercise_1(os.path.join("data", results_files[0]))
+    #results_files:List[str] = ["ej1_data.csv", "ej2_data.csv", "ej3_data.csv", "ej4_data.csv"]
+    #plots_for_exercise_1(os.path.join("data", results_files[0]))
+    animate_decision_boundary_2D(np.array([[-1, -1], [1, 1], [-1, 1], [1, -1]]), np.array([-1, 1, -1, -1]), "and", 0.0001)
