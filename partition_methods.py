@@ -22,11 +22,10 @@ def k_cross_validation(k:int, x_values:List[float], y_values:List[float], seed:i
     results = []
     n = len(x_values)
     np.random.seed(seed)
-    shuffled_array = np.array(list(zip(x_values, y_values)))
-    np.random.shuffle(shuffled_array)
-
-    x_shuffled = shuffled_array[:, 0]
-    y_shuffled = shuffled_array[:, 1]
+    indices = np.random.permutation(n)
+    
+    x_shuffled = x_values[indices]
+    y_shuffled = y_values[indices]
     
     testing_partition_len = int(np.ceil(n / k))
     for testing_partition_index in range(k):
