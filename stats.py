@@ -145,9 +145,66 @@ def animate_decision_boundary_2D(x, y, method, learning_rate, title = "Animació
     ani = animation.FuncAnimation(fig, update, frames=len(weights_list), interval=700, repeat=False)
     ani.save("graphs/animations/" + save_name + ".gif", writer="pillow", fps=2)
 
+
+def animate_regression_plane_3D(activation_function, learning_rate, beta, partition, title="Animación plano de regresión", save_name="animated_regression_plane"):
+
+    input_data_dir_name = "input_data"
+    exercise_2_input_data_filename = "TP3-ej2-conjunto.csv"
+
+    exercise_2_input_data_path= os.path.join(input_data_dir_name, exercise_2_input_data_filename)
+    df = pd.read_csv(exercise_2_input_data_path)
+    x = df[['x1', 'x2', 'x3']].to_numpy()
+    y = df['y'].to_numpy()
+
+    weights_list = load_ej2_weights_from_csv("output_data/ej2_data.csv", activation_function, learning_rate, beta, partition)
+    
+    x1 = np.array([xi[0] for xi in x])
+    x2 = np.array([xi[1] for xi in x])
+    x3 = np.array([xi[2] for xi in x])
+
+    fig = plt.figure()
+    ax = fig.add_subplot(111, projection='3d')
+
+    ax.scatter(x1, x2, x3, c=y, cmap='viridis', marker='o')
+
+    x1_range = np.linspace(min(x1), max(x1), 20)
+    x2_range = np.linspace(min(x2), max(x2), 20)
+    x1_grid, x2_grid = np.meshgrid(x1_range, x2_range)
+    plane = [ax.plot_surface(x1_grid, x2_grid, np.zeros_like(x1_grid), alpha=0.5, color='orange')]
+
+    ax.set_xlim(min(x1), max(x1))
+    ax.set_ylim(min(x2), max(x2))
+    ax.set_zlim(min(x3), max(x3))
+
+    ax.set_xlabel('x1')
+    ax.set_ylabel('x2')
+    ax.set_zlabel('x3')
+    plt.title(title)
+
+    def update(frame):
+        plane[0].remove()
+
+        weights = weights_list[frame]
+        bias, w1, w2, w3 = weights
+
+        if w3 == 0:
+            z = np.zeros_like(x1_grid)
+        else:
+            z = -(w1 * x1_grid + w2 * x2_grid + bias) / w3
+
+        plane[0] = ax.plot_surface(x1_grid, x2_grid, z, alpha=0.5, color='orange')
+        return plane[0],
+
+    ani = animation.FuncAnimation(fig, update, frames=len(weights_list), interval=500, repeat=False)
+    ani.save("graphs/animations/" + save_name + ".gif", writer='pillow', fps=2)
+
+
+
 if __name__ == '__main__':
     #results_files:List[str] = ["ej1_data.csv", "ej2_data.csv", "ej3_data.csv", "ej4_data.csv"]
     #plots_for_exercise_1(os.path.join("data", results_files[0]))
-    animate_decision_boundary_2D(np.array([[-1, 1], [1, -1], [-1, -1], [1, 1]]), np.array([-1, -1, -1, 1]), "and", 0.0001, "Frontera de decisión AND", "animated_and_decision_boundary")
-    animate_decision_boundary_2D(np.array([[-1, 1], [1, -1], [-1, -1], [1, 1]]), np.array([1, 1, -1, -1]), "xor", 0.0001, "Frontera de decisión XOR", "animated_xor_decision_boundary")
+    
+    #animate_decision_boundary_2D(np.array([[-1, 1], [1, -1], [-1, -1], [1, 1]]), np.array([-1, -1, -1, 1]), "and", 0.0001, "Frontera de decisión AND", "animated_and_decision_boundary")
+    #animate_decision_boundary_2D(np.array([[-1, 1], [1, -1], [-1, -1], [1, 1]]), np.array([1, 1, -1, -1]), "xor", 0.0001, "Frontera de decisión XOR", "animated_xor_decision_boundary")
+    animate_regression_plane_3D("identity", 0.0001, 1.0, 1, "Plano de regresión con función identidad", "animated_identity_regression_plane_1partition")
 
