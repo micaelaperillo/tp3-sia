@@ -27,7 +27,7 @@ def plot_training_error_vs_epoch_for_each_method(df, seed:int, learning_rate:flo
     and_training = filtered_by_learning_rate[filtered_by_learning_rate['method'] == 'and']
     xor_training = filtered_by_learning_rate[filtered_by_seed['method'] == 'xor']
 
-    plt.plot(and_training['epochs'], and_training['error'])
+    plt.plot(and_training['epoch'], and_training['error'])
     plt.title("Variación del error por épocas")
     plt.xlabel("Época")
     plt.ylabel("Error cuadrático")
@@ -35,7 +35,7 @@ def plot_training_error_vs_epoch_for_each_method(df, seed:int, learning_rate:flo
     plt.savefig(f"graphs/and_method_error_vs_epochs_s_{seed}_eta_{learning_rate}.png")
     plt.clf()
 
-    plt.plot(xor_training['epochs'], xor_training['error'])
+    plt.plot(xor_training['epoch'], xor_training['error'])
     plt.title("Variación del error por épocas")
     plt.xlabel("Época")
     plt.ylabel("Error cuadrático")
@@ -44,10 +44,10 @@ def plot_training_error_vs_epoch_for_each_method(df, seed:int, learning_rate:flo
     plt.clf()
 
 
-def graph_decision_boundary(method, learning_rate):
+def graph_decision_boundary(method, learning_rate, epochs):
     
     x, y = get_ej1_data_xy(method)
-    weights = load_ej1_last_weights_from_csv("output_data/ej1_data.csv", method, learning_rate)
+    weights = load_ej1_last_weights_from_csv("output_data/ej1_data.csv", method, learning_rate, epochs)
 
     colors = ['red' if label == -1 else 'blue' for label in y]
 
@@ -75,8 +75,8 @@ def graph_decision_boundary(method, learning_rate):
         Line2D([0], [0], color='black', label='Frontera de decisión')
     ]
 
-    title = get_title("Frontera de decisión", method, learning_rate)
-    save_name = get_save_name("decision_boundary", method, learning_rate)
+    title = get_title("Frontera de decisión", method, learning_rate, epochs)
+    save_name = get_save_name("decision_boundary", method, learning_rate, epochs)
 
     plt.legend(handles=legend_elements)
     plt.axhline(0, color='gray', linestyle='--')
@@ -92,10 +92,10 @@ def graph_decision_boundary(method, learning_rate):
     plt.savefig("graphs/decision boundaries/" + save_name + ".png")
 
 
-def plot_regression_plane(activation_function, learning_rate, beta, partition):
+def plot_regression_plane(activation_function, learning_rate, epochs, beta, partition):
     
     x, y = get_ej2_data_xy()
-    weights = load_ej2_last_weights_from_csv("output_data/ej2_data.csv", activation_function, learning_rate, beta, partition)
+    weights = load_ej2_last_weights_from_csv("output_data/ej2_data.csv", activation_function, learning_rate, epochs, beta, partition)
 
     x1 = np.array([xi[0] for xi in x])
     x2 = np.array([xi[1] for xi in x])
@@ -116,8 +116,8 @@ def plot_regression_plane(activation_function, learning_rate, beta, partition):
     x3_grid = -(w1 * x1_grid + w2 * x2_grid + bias) / w3
     ax.plot_surface(x1_grid, x2_grid, x3_grid, alpha=0.5, color='orange', label='Plano de regresión')
 
-    title = get_title("Plano de regresión", activation_function, learning_rate, True, beta, partition)
-    save_name = get_save_name("regression_plane", activation_function, learning_rate, True, beta, partition)
+    title = get_title("Plano de regresión", activation_function, learning_rate, epochs, True, beta, partition)
+    save_name = get_save_name("regression_plane", activation_function, learning_rate, epochs, True, beta, partition)
 
     ax.set_xlabel('x1')
     ax.set_ylabel('x2')
@@ -126,10 +126,10 @@ def plot_regression_plane(activation_function, learning_rate, beta, partition):
     plt.savefig("graphs/decision boundaries/" + save_name + ".png")
 
 
-def animate_decision_boundary_2D(method, learning_rate):
+def animate_decision_boundary_2D(method, learning_rate, epochs):
     
     x, y = get_ej1_data_xy(method)
-    weights_list = load_ej1_animation_weights_from_csv("output_data/ej1_data.csv", method, learning_rate)
+    weights_list = load_ej1_animation_weights_from_csv("output_data/ej1_data.csv", method, learning_rate, epochs)
 
     fig, ax = plt.subplots()
 
@@ -145,8 +145,8 @@ def animate_decision_boundary_2D(method, learning_rate):
             line.set_data(x_vals, y_vals)
         return line,
 
-    title = get_title("Frontera de decisión", method, learning_rate)
-    save_name = get_save_name("animated_decision_boundary", method, learning_rate)
+    title = get_title("Frontera de decisión", method, learning_rate, epochs)
+    save_name = get_save_name("animated_decision_boundary", method, learning_rate, epochs)
 
     ax.scatter(x[:, 0], x[:, 1], c=y, cmap='coolwarm', edgecolors='k')
     ax.axhline(0, color='gray', linestyle='--')
@@ -164,10 +164,10 @@ def animate_decision_boundary_2D(method, learning_rate):
     ani.save("graphs/animations/" + save_name + ".gif", writer="pillow", fps=2)
 
 
-def animate_regression_plane_3D(activation_function, learning_rate, beta, partition):
+def animate_regression_plane_3D(activation_function, learning_rate, epochs, beta, partition):
     
     x, y = get_ej2_data_xy()
-    weights_list = load_ej2_animation_weights_from_csv("output_data/ej2_data.csv", activation_function, learning_rate, beta, partition)
+    weights_list = load_ej2_animation_weights_from_csv("output_data/ej2_data.csv", activation_function, learning_rate, epochs, beta, partition)
     
     x1 = np.array([xi[0] for xi in x])
     x2 = np.array([xi[1] for xi in x])
@@ -187,8 +187,8 @@ def animate_regression_plane_3D(activation_function, learning_rate, beta, partit
     ax.set_ylim(min(x2), max(x2))
     ax.set_zlim(min(x3), max(x3))
 
-    title = get_title("Plano de regresión", activation_function, learning_rate, True, beta, partition)
-    save_name = get_save_name("animated_regression_plane", activation_function, learning_rate, True, beta, partition)
+    title = get_title("Plano de regresión", activation_function, learning_rate, epochs, True, beta, partition)
+    save_name = get_save_name("animated_regression_plane", activation_function, learning_rate, epochs, True, beta, partition)
 
     ax.set_xlabel('x1')
     ax.set_ylabel('x2')
@@ -218,10 +218,10 @@ if __name__ == '__main__':
     #results_files:List[str] = ["ej1_data.csv", "ej2_data.csv", "ej3_data.csv", "ej4_data.csv"]
     #plots_for_exercise_1(os.path.join("data", results_files[0]))
     
-    graph_decision_boundary("and", 0.0001)
-    graph_decision_boundary("xor", 0.0001)
-    plot_regression_plane("identity", 0.0001, 1.0, 1)
-    animate_decision_boundary_2D("and", 0.0001)
-    animate_decision_boundary_2D("xor", 0.0001)
-    animate_regression_plane_3D("identity", 0.0001, 1.0, 1)
+    graph_decision_boundary("and", learning_rate=0.0001, epochs=200)
+    graph_decision_boundary("xor", learning_rate=0.0001, epochs=200)
+    plot_regression_plane("identity", learning_rate=0.0001, epochs=200, beta=1.0, partition=1)
+    animate_decision_boundary_2D("and", learning_rate=0.0001, epochs=200)
+    animate_decision_boundary_2D("xor", learning_rate=0.0001, epochs=200)
+    animate_regression_plane_3D("identity", learning_rate=0.0001, epochs=200, beta=1.0, partition=1)
 

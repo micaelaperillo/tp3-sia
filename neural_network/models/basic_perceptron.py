@@ -38,7 +38,7 @@ class Perceptron:
                     self.weights += delta_w
 
             perceptron_error = error_function(np.array(errors))
-            file.write(f"{self.seed},{partition},{self.weights},{method},{beta},{learning_rate},{epoch},{perceptron_error}\n")
+            file.write(f"{self.seed},{partition},{self.weights},{method},{beta},{learning_rate},{epochs},{epoch},{perceptron_error}\n")
             if perceptron_error < max_acceptable_error:
                 return epoch + 1, perceptron_error
         

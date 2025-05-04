@@ -29,7 +29,7 @@ if __name__ == '__main__':
     epochs:List[int] = [200]
 
     # by storing the seed we get which weights are being used initially
-    first_exercise_results_file.write(f"seed,partition,weights,method,beta,learning_rate,epochs,error\n")
+    first_exercise_results_file.write(f"seed,partition,weights,method,beta,learning_rate,total_epochs,epoch,error\n")
 
     for learning_rate in learning_rates:
         for epoch_amount in epochs:
@@ -57,7 +57,7 @@ if __name__ == '__main__':
     epochs:List[int] = [200]
 
     second_exercise_training_results_file = open(os.path.join(results_data_dir_name, results_files[1]), "w", newline='')
-    second_exercise_training_results_file.write(f"seed,partition,weights,activation_function,beta,learning_rate,epochs,error\n")
+    second_exercise_training_results_file.write(f"seed,partition,weights,activation_function,beta,learning_rate,total_epochs,epoch,error\n")
     second_exercise_results_file = open(os.path.join(results_data_dir_name, "ej2_data_errors.csv"), "w", newline='')
     second_exercise_results_file.write(f"seed,activation_function,beta,learning_rate,epochs,error_method,training_mean_error,training_error_std,training_data_mean_prediction_error,training_data_prediction_error_std,testing_data_mean_prediction_error,testing_data_prediction_error_std\n")
 

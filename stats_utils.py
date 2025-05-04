@@ -2,14 +2,14 @@ import pandas as pd
 import numpy as np
 import os
 
-def get_title(init_string: str, fun: str, learning_rate: float, extra_params:bool = False, beta: float = 0, partition: int = 0):
-    title = f"{init_string} {fun.upper()}: tasa={learning_rate}"
+def get_title(init_string: str, fun: str, learning_rate: float, epochs: int, extra_params:bool = False, beta: float = 0, partition: int = 0):
+    title = f"{init_string} {fun.upper()}: tasa={learning_rate}, épocas={epochs}"
     if extra_params:
         title = title + f", beta={beta}, particiones={partition}"
     return title
 
-def get_save_name(init_string: str, fun: str, learning_rate: float, extra_params: bool = False, beta: float = 0, partition: int = 0):
-    save_name = f"{fun}_{init_string}_tasa_{learning_rate}"
+def get_save_name(init_string: str, fun: str, learning_rate: float, epochs: int, extra_params: bool = False, beta: float = 0, partition: int = 0):
+    save_name = f"{fun}_{init_string}_tasa_{learning_rate}_epochs_{epochs}"
     if extra_params:
         save_name = save_name + f"_beta_{beta}_part_{partition}"
     return save_name
@@ -36,45 +36,54 @@ def parse_weights(weights_str):
     return np.array([float(w) for w in weights_str.split()])
 
 
-def load_ej1_animation_weights_from_csv(filepath: str, method: str, learning_rate: float):
+def load_ej1_animation_weights_from_csv(filepath: str, method: str, learning_rate: float, epochs: int):
     df = pd.read_csv(filepath)
 
-    filtered = df[(df["method"] == method) & (df["learning_rate"] == learning_rate)]
-    filtered = filtered.sort_values(by="epochs").reset_index(drop=True)
+    filtered = df[(df["method"] == method) & (df["learning_rate"] == learning_rate) & (df["total_epochs"] == epochs)]
+    filtered = filtered.sort_values(by="epoch").reset_index(drop=True)
+    check_filters_existance(filtered)
 
     indices = np.linspace(0, len(filtered) - 1, num=20, dtype=int)
     sampled_weights = filtered.loc[indices, "weights"].apply(parse_weights).to_list()
     return sampled_weights
 
 
-def load_ej2_animation_weights_from_csv(filepath: str, activation_function: str, learning_rate: float, beta: float, partition: int):
+def load_ej2_animation_weights_from_csv(filepath: str, activation_function: str, learning_rate: float, epochs: int, beta: float, partition: int):
     df = pd.read_csv(filepath)
 
-    filtered = df[(df["activation_function"] == activation_function) & (df["learning_rate"] == learning_rate) & (df["beta"] == beta) & (df["partition"] == partition)]
-    filtered = filtered.sort_values(by="epochs").reset_index(drop=True)
+    filtered = df[(df["activation_function"] == activation_function) & (df["learning_rate"] == learning_rate) & (df["total_epochs"] == epochs) & (df["beta"] == beta) & (df["partition"] == partition)]
+    filtered = filtered.sort_values(by="epoch").reset_index(drop=True)
+    check_filters_existance(filtered)
 
     indices = np.linspace(0, len(filtered) - 1, num=20, dtype=int)
     sampled_weights = filtered.loc[indices, "weights"].apply(parse_weights).to_list()
     return sampled_weights
 
 
-def load_ej1_last_weights_from_csv(filepath: str, method: str, learning_rate: float):
+def load_ej1_last_weights_from_csv(filepath: str, method: str, learning_rate: float, epochs: int):
     df = pd.read_csv(filepath)
 
-    filtered = df[(df["method"] == method) & (df["learning_rate"] == learning_rate)]
-    filtered = filtered.sort_values(by="epochs").reset_index(drop=True)
+    filtered = df[(df["method"] == method) & (df["learning_rate"] == learning_rate) & (df["total_epochs"] == epochs)]
+    filtered = filtered.sort_values(by="epoch").reset_index(drop=True)
+    check_filters_existance(filtered)
 
     last_row = filtered.iloc[-1]
     weights = parse_weights(last_row["weights"])
     return weights
 
 
-def load_ej2_last_weights_from_csv(filepath: str, activation_function: str, learning_rate: float, beta: float, partition: int):
+def load_ej2_last_weights_from_csv(filepath: str, activation_function: str, learning_rate: float, epochs: int, beta: float, partition: int):
     df = pd.read_csv(filepath)
 
-    filtered = df[(df["activation_function"] == activation_function) & (df["learning_rate"] == learning_rate) & (df["beta"] == beta) & (df["partition"] == partition)]
-    filtered = filtered.sort_values(by="epochs").reset_index(drop=True)
+    filtered = df[(df["activation_function"] == activation_function) & (df["learning_rate"] == learning_rate) & (df["total_epochs"] == epochs) & (df["beta"] == beta) & (df["partition"] == partition)]
+    filtered = filtered.sort_values(by="epoch").reset_index(drop=True)
+    check_filters_existance(filtered)
 
     last_row = filtered.iloc[-1]
     weights = parse_weights(last_row["weights"])
     return weights
+
+
+def check_filters_existance(filtered_data: pd.DataFrame):
+    if filtered_data.empty:
+        raise ValueError("No data found for the given filters.")
