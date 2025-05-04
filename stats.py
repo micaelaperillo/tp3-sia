@@ -8,7 +8,7 @@ import numpy as np
 from matplotlib.lines import Line2D
 from mpl_toolkits.mplot3d import Axes3D
 from matplotlib import animation
-from stats_utils import load_ej1_weights_from_csv, load_ej1_weights_from_csv, load_ej2_weights_from_csv
+from stats_utils import load_ej1_animation_weights_from_csv, load_ej2_animation_weights_from_csv, get_ej1_data_xy, get_ej2_data_xy, load_ej1_last_weights_from_csv, load_ej2_last_weights_from_csv, get_save_name, get_title
 
 
 if not os.path.exists("graphs"):
@@ -44,8 +44,11 @@ def plot_training_error_vs_epoch_for_each_method(df, seed:int, learning_rate:flo
     plt.clf()
 
 
-def graph_decision_boundary(x, y, weights, title = "Frontera de decisión", save_name="decision_boundary"):
+def graph_decision_boundary(method, learning_rate):
     
+    x, y = get_ej1_data_xy(method)
+    weights = load_ej1_last_weights_from_csv("output_data/ej1_data.csv", method, learning_rate)
+
     colors = ['red' if label == -1 else 'blue' for label in y]
 
     x1_vals = np.array([xi[0] for xi in x])
@@ -72,6 +75,9 @@ def graph_decision_boundary(x, y, weights, title = "Frontera de decisión", save
         Line2D([0], [0], color='black', label='Frontera de decisión')
     ]
 
+    title = get_title("Frontera de decisión", method, learning_rate)
+    save_name = get_save_name("decision_boundary", method, learning_rate)
+
     plt.legend(handles=legend_elements)
     plt.axhline(0, color='gray', linestyle='--')
     plt.axvline(0, color='gray', linestyle='--')
@@ -86,7 +92,11 @@ def graph_decision_boundary(x, y, weights, title = "Frontera de decisión", save
     plt.savefig("graphs/decision boundaries/" + save_name + ".png")
 
 
-def plot_regression_plane(x, y, weights, title = "Plano de regresión", save_name="regression_plane"):
+def plot_regression_plane(activation_function, learning_rate, beta, partition):
+    
+    x, y = get_ej2_data_xy()
+    weights = load_ej2_last_weights_from_csv("output_data/ej2_data.csv", activation_function, learning_rate, beta, partition)
+
     x1 = np.array([xi[0] for xi in x])
     x2 = np.array([xi[1] for xi in x])
     x3 = np.array([xi[2] for xi in x])
@@ -106,6 +116,9 @@ def plot_regression_plane(x, y, weights, title = "Plano de regresión", save_nam
     x3_grid = -(w1 * x1_grid + w2 * x2_grid + bias) / w3
     ax.plot_surface(x1_grid, x2_grid, x3_grid, alpha=0.5, color='orange', label='Plano de regresión')
 
+    title = get_title("Plano de regresión", activation_function, learning_rate, True, beta, partition)
+    save_name = get_save_name("regression_plane", activation_function, learning_rate, True, beta, partition)
+
     ax.set_xlabel('x1')
     ax.set_ylabel('x2')
     ax.set_zlabel('x3')
@@ -113,8 +126,10 @@ def plot_regression_plane(x, y, weights, title = "Plano de regresión", save_nam
     plt.savefig("graphs/decision boundaries/" + save_name + ".png")
 
 
-def animate_decision_boundary_2D(x, y, method, learning_rate, title = "Animación frontera de decisión", save_name="animated_decision_boundary"):
-    weights_list = load_ej1_weights_from_csv("output_data/ej1_data.csv", method, learning_rate)
+def animate_decision_boundary_2D(method, learning_rate):
+    
+    x, y = get_ej1_data_xy(method)
+    weights_list = load_ej1_animation_weights_from_csv("output_data/ej1_data.csv", method, learning_rate)
 
     fig, ax = plt.subplots()
 
@@ -129,6 +144,9 @@ def animate_decision_boundary_2D(x, y, method, learning_rate, title = "Animació
             y_vals = -(w[1] * x_vals + w[0]) / w[2]
             line.set_data(x_vals, y_vals)
         return line,
+
+    title = get_title("Frontera de decisión", method, learning_rate)
+    save_name = get_save_name("animated_decision_boundary", method, learning_rate)
 
     ax.scatter(x[:, 0], x[:, 1], c=y, cmap='coolwarm', edgecolors='k')
     ax.axhline(0, color='gray', linestyle='--')
@@ -146,17 +164,10 @@ def animate_decision_boundary_2D(x, y, method, learning_rate, title = "Animació
     ani.save("graphs/animations/" + save_name + ".gif", writer="pillow", fps=2)
 
 
-def animate_regression_plane_3D(activation_function, learning_rate, beta, partition, title="Animación plano de regresión", save_name="animated_regression_plane"):
-
-    input_data_dir_name = "input_data"
-    exercise_2_input_data_filename = "TP3-ej2-conjunto.csv"
-
-    exercise_2_input_data_path= os.path.join(input_data_dir_name, exercise_2_input_data_filename)
-    df = pd.read_csv(exercise_2_input_data_path)
-    x = df[['x1', 'x2', 'x3']].to_numpy()
-    y = df['y'].to_numpy()
-
-    weights_list = load_ej2_weights_from_csv("output_data/ej2_data.csv", activation_function, learning_rate, beta, partition)
+def animate_regression_plane_3D(activation_function, learning_rate, beta, partition):
+    
+    x, y = get_ej2_data_xy()
+    weights_list = load_ej2_animation_weights_from_csv("output_data/ej2_data.csv", activation_function, learning_rate, beta, partition)
     
     x1 = np.array([xi[0] for xi in x])
     x2 = np.array([xi[1] for xi in x])
@@ -175,6 +186,9 @@ def animate_regression_plane_3D(activation_function, learning_rate, beta, partit
     ax.set_xlim(min(x1), max(x1))
     ax.set_ylim(min(x2), max(x2))
     ax.set_zlim(min(x3), max(x3))
+
+    title = get_title("Plano de regresión", activation_function, learning_rate, True, beta, partition)
+    save_name = get_save_name("animated_regression_plane", activation_function, learning_rate, True, beta, partition)
 
     ax.set_xlabel('x1')
     ax.set_ylabel('x2')
@@ -204,7 +218,10 @@ if __name__ == '__main__':
     #results_files:List[str] = ["ej1_data.csv", "ej2_data.csv", "ej3_data.csv", "ej4_data.csv"]
     #plots_for_exercise_1(os.path.join("data", results_files[0]))
     
-    #animate_decision_boundary_2D(np.array([[-1, 1], [1, -1], [-1, -1], [1, 1]]), np.array([-1, -1, -1, 1]), "and", 0.0001, "Frontera de decisión AND", "animated_and_decision_boundary")
-    #animate_decision_boundary_2D(np.array([[-1, 1], [1, -1], [-1, -1], [1, 1]]), np.array([1, 1, -1, -1]), "xor", 0.0001, "Frontera de decisión XOR", "animated_xor_decision_boundary")
-    animate_regression_plane_3D("identity", 0.0001, 1.0, 1, "Plano de regresión con función identidad", "animated_identity_regression_plane_1partition")
+    graph_decision_boundary("and", 0.0001)
+    graph_decision_boundary("xor", 0.0001)
+    plot_regression_plane("identity", 0.0001, 1.0, 1)
+    animate_decision_boundary_2D("and", 0.0001)
+    animate_decision_boundary_2D("xor", 0.0001)
+    animate_regression_plane_3D("identity", 0.0001, 1.0, 1)
 
