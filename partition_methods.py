@@ -1,5 +1,6 @@
 from typing import List 
 import numpy as np
+from sklearn.model_selection import StratifiedKFold
 
 def initial_partition_by_testing_percentage(testing_percentage:float, x_values:List[float], y_values:List[float]):
     testing_partition_len = np.ceil(len(x_values) * testing_percentage)
@@ -24,26 +25,43 @@ def k_cross_validation(k:int, x_values:List[float], y_values:List[float], seed:i
     np.random.seed(seed)
     indices = np.random.permutation(n)
     
-    x_shuffled = x_values[indices]
-    y_shuffled = y_values[indices]
-    
-    testing_partition_len = int(np.ceil(n / k))
-    for testing_partition_index in range(k):
-        test_start = testing_partition_index * testing_partition_len
-        test_end = min(test_start + testing_partition_len, n)  
-        
-        test_indices = np.arange(test_start, test_end)
-        train_indices = np.setdiff1d(np.arange(n), test_indices)
-        
-        test_x = x_shuffled[test_indices]
-        test_y = y_shuffled[test_indices]
-        train_x = x_shuffled[train_indices]
-        train_y = y_shuffled[train_indices]
-        
+    fold_indices = np.array_split(indices, k)
+
+    for i in range(k):
+        test_indices = fold_indices[i]
+        train_indices = np.concatenate([fold_indices[j] for j in range(k) if j != i])
+
+        train_x = x_values[train_indices]
+        train_y = y_values[train_indices]
+        test_x = x_values[test_indices]
+        test_y = y_values[test_indices]
+
         training_set = [train_x, train_y]
         testing_set = [test_x, test_y]
         configuration = [training_set, testing_set]
-        
+
+        results.append(configuration)
+
+    return results
+
+
+def stratified_k_cross_validation(k: int, x_values: List[float], y_values: List[int], seed: int = 43):
+    results = []
+    x_array = np.array(x_values)
+    y_array = np.array(y_values)
+
+    skf = StratifiedKFold(n_splits=k, shuffle=True, random_state=seed)
+
+    for train_index, test_index in skf.split(x_array, y_array):
+        train_x = x_array[train_index]
+        train_y = y_array[train_index]
+        test_x = x_array[test_index]
+        test_y = y_array[test_index]
+
+        training_set = [train_x, train_y]
+        testing_set = [test_x, test_y]
+        configuration = [training_set, testing_set]
+
         results.append(configuration)
 
     return results
