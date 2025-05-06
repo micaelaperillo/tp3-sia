@@ -43,6 +43,72 @@ def plot_training_error_vs_epoch_for_each_method(df, seed:int, learning_rate:flo
     plt.savefig(f"graphs/xor_method_error_vs_epochs_s_{seed}_eta_{learning_rate}.png")
     plt.clf()
 
+def plots_for_exercise_2(results_file:str, error_file:str):
+    df_results = pd.read_csv(results_file)
+    df_errors = pd.read_csv(error_file)
+    learning_rates:List[float] = [0.0001, 0.00005, 0.00001]
+    plot_linear_perceptron_errors_for_identity_function(df_errors, 43)
+    for learning_rate in learning_rates:
+        plot_linear_perceptron_errors_for_different_beta_by_learning_rate(df_errors, learning_rate, 43)
+
+def plot_linear_perceptron_errors_for_identity_function(df, seed:int):
+    filtered = df [(df['seed'] == seed) & (df['activation_function'] == 'identity')]
+
+    plt.bar(filtered['learning_rate'].astype(str), filtered['training_mean_error'], yerr=filtered['training_error_std'], capsize=5, color='skyblue', alpha=0.8)
+    plt.xlabel("Learning Rate")
+    plt.ylabel("Training Mean Error")
+    plt.title(f"Training mean error with identity for different learning rates")
+    plt.grid(True, axis='y', linestyle="--", alpha=0.7)
+    plt.savefig("graphs/identity_training_errors_for_learning_rates.png")
+
+    plt.bar(filtered['learning_rate'].astype(str), filtered['training_data_mean_prediction_error'], yerr=filtered["training_data_prediction_error_std"], capsize=5, color='red', alpha=0.8)
+    plt.xlabel("Learning Rate")
+    plt.ylabel("Training Data Mean Prediction Error")
+    plt.title(f"Training mean prediction error with identity for different learning rates")
+    plt.grid(True, axis='y', linestyle='--', alpha=0.7)
+    plt.savefig("graphs/identity_training_data_prediction_errors_for_learning_rates.png")
+    plt.clf()
+
+    plt.bar(filtered['learning_rate'].astype(str), filtered['testing_data_mean_prediction_error'], yerr=filtered["testing_data_prediction_error_std"], capsize=5, color='green', alpha=0.8)
+    plt.xlabel("Learning Rate")
+    plt.ylabel("Testing Data Mean Prediction Error")
+    plt.title(f"Testing mean prediction error with identity for different learning rates")
+    plt.grid(True, axis='y', linestyle='--', alpha=0.7)
+    plt.savefig("graphs/identity_testing_data_prediction_errors_for_learning_rates.png")
+    plt.clf()
+
+def plot_linear_perceptron_errors_for_different_beta_by_learning_rate(df, learning_rate:float, seed:int):
+    filtered = df[
+    (df['seed'] == seed) &
+    (df['activation_function'] == 'tanh_linear') &
+    (df['learning_rate'] == learning_rate)
+    ]
+
+    plt.bar(filtered['beta'].astype(str), filtered['training_mean_error'], yerr=filtered["training_error_std"], capsize=5, color='skyblue', alpha=0.8)
+    plt.xlabel("Beta")
+    plt.ylabel("Training Mean Error")
+    plt.title(f"Training mean error with linear tanh for learning_rate: {learning_rate}")
+    plt.grid(True, axis='y', linestyle='--', alpha=0.7)
+    plt.savefig(f"graphs/linear_tanh_betas_training_errors_for_learning_rate_{learning_rate}.png")
+    plt.clf()
+
+    plt.bar(filtered['beta'].astype(str), filtered['training_data_mean_prediction_error'], yerr=filtered["training_data_prediction_error_std"], capsize=5, color='red', alpha=0.8)
+    plt.xlabel("Beta")
+    plt.ylabel("Training Data Mean Prediction Error")
+    plt.title(f"Training mean prediction error with linear tanh for learning_rate: {learning_rate}")
+    plt.grid(True, axis='y', linestyle='--', alpha=0.7)
+    plt.savefig(f"graphs/linear_tanh_betas_training_data_prediction_errors_for_learning_rate_{learning_rate}.png")
+    plt.clf()
+
+    plt.bar(filtered['beta'].astype(str), filtered['testing_data_mean_prediction_error'], yerr=filtered["testing_data_prediction_error_std"], capsize=5, color='green', alpha=0.8)
+    plt.xlabel("Beta")
+    plt.ylabel("Testing Data Mean Prediction Error")
+    plt.title(f"Testing mean prediction error with linear tanh for learning_rate: {learning_rate}")
+    plt.grid(True, axis='y', linestyle='--', alpha=0.7)
+    plt.savefig(f"graphs/linear_tanh_betas_testing_data_prediction_errors_for_learning_rate_{learning_rate}.png")
+    plt.clf()
+
+
 
 def graph_decision_boundary(method, learning_rate, epochs):
     
@@ -216,12 +282,13 @@ def animate_regression_plane_3D(activation_function, learning_rate, epochs, beta
 
 if __name__ == '__main__':
     #results_files:List[str] = ["ej1_data.csv", "ej2_data.csv", "ej3_data.csv", "ej4_data.csv"]
-    #plots_for_exercise_1(os.path.join("data", results_files[0]))
+    #plots_for_exercise_1(os.path.join("output_data", results_files[0]))
     
-    graph_decision_boundary("and", learning_rate=0.0001, epochs=200)
-    graph_decision_boundary("xor", learning_rate=0.0001, epochs=200)
-    plot_regression_plane("identity", learning_rate=0.0001, epochs=200, beta=1.0, partition=1)
-    animate_decision_boundary_2D("and", learning_rate=0.0001, epochs=200)
-    animate_decision_boundary_2D("xor", learning_rate=0.0001, epochs=200)
-    animate_regression_plane_3D("identity", learning_rate=0.0001, epochs=200, beta=1.0, partition=1)
+    plots_for_exercise_2(os.path.join("output_data", "ej2_data.csv"), os.path.join("output_data", "ej2_data_errors.csv"))
+    #graph_decision_boundary("and", learning_rate=0.0001, epochs=200)
+    #graph_decision_boundary("xor", learning_rate=0.0001, epochs=200)
+    #plot_regression_plane("identity", learning_rate=0.0001, epochs=200, beta=1.0, partition=1)
+    #animate_decision_boundary_2D("and", learning_rate=0.0001, epochs=200)
+    #animate_decision_boundary_2D("xor", learning_rate=0.0001, epochs=200)
+    #animate_regression_plane_3D("identity", learning_rate=0.0001, epochs=200, beta=1.0, partition=1)
 
