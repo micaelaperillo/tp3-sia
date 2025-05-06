@@ -6,7 +6,7 @@ def get_prediction_error(perceptron:Perceptron, x_values:List[List[float]], y_va
     errors = []
     for x_value, y_value in zip(x_values, y_values):
         x_with_bias = np.insert(x_value, 0, 1)
-        prediction = perceptron.predict(x_with_bias, beta)
+        prediction, h_supra_mu = perceptron.predict(x_with_bias, beta)
         basic_error = (y_value - prediction)
         errors.append(basic_error)
 
