@@ -22,13 +22,11 @@ class Perceptron:
 
     def train(self, training_set:List[List[int]], labels:List[int], learning_rate:float, epochs:int, error_function:ErrorFunctionType, max_acceptable_error:float,file, method:str, is_activation_derivable=False, beta:float= 1.0, partition:int=0):
         for epoch in range(epochs):
-            errors = []
             for data_instance, label in zip(training_set, labels):
                 data_with_bias = np.insert(data_instance, 0, 1)
                 prediction, h_supra_mu = self.predict(data_with_bias, beta)
 
                 basic_error = (label - prediction) 
-                errors.append(basic_error)
                 
                 # we update bias and weights altogether
                 if basic_error != 0:
@@ -37,8 +35,15 @@ class Perceptron:
                         delta_w *= self.prime_activation_function(h_supra_mu, beta)
                     self.weights += delta_w
 
-            perceptron_error = error_function(np.array(errors))
-            file.write(f"{self.seed},{partition},{self.weights},{method},{beta},{learning_rate},{epochs},{epoch},{perceptron_error}\n")
+            errors = []
+            for x_value, expected_value in zip(training_set, labels):
+                x_value = np.insert(x_value, 0, 1)
+                prediction, h_supra_mu = self.predict(x_value)
+                error = (expected_value - prediction) 
+                errors.append(error)
+
+            perceptron_error = error_function(np.array(errors), labels)
+            file.write(f"{self.seed},{partition},{self.weights},{method},{beta},{learning_rate},{epochs},{epoch+1},{perceptron_error}\n")
             if perceptron_error < max_acceptable_error:
                 return epoch + 1, perceptron_error
         

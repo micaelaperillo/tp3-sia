@@ -14,6 +14,6 @@ def get_prediction_error(perceptron:Perceptron, x_values:List[List[float]], y_va
         basic_error = (y_value - prediction)
         errors.append(basic_error)
 
-    return error_function(np.array(errors))
+    return error_function(np.array(errors), y_values)
         
 
