@@ -9,6 +9,7 @@ from neural_network.error_functions import squared_error, mean_error
 from partition_methods import k_cross_validation
 from metric_functions import get_prediction_error
 from scale_functions import ScaleFunctions
+from neural_network.optimizers import rosenblatt_optimizer, gradient_descent_optimizer
 
 
 if __name__ == '__main__':
@@ -36,10 +37,10 @@ if __name__ == '__main__':
     for learning_rate in learning_rates:
         for epoch_amount in epochs:
             and_simple_perceptron = Perceptron(len(and_x_values[0]), step)
-            and_breaking_epoch, and_training_error = and_simple_perceptron.train(and_x_values, and_y_values, learning_rate, epoch_amount, mean_error, 1.0, first_exercise_results_file, "and")
+            and_breaking_epoch, and_training_error = and_simple_perceptron.train(and_x_values, and_y_values, learning_rate, epoch_amount, rosenblatt_optimizer, squared_error, 1.0, first_exercise_results_file, "and")
 
             xor_simple_perceptron = Perceptron(len(xor_x_values[0]), step)            
-            xor_breaking_epoch, xor_training_error = xor_simple_perceptron.train(xor_x_values, xor_y_values, learning_rate, epoch_amount, mean_error, 1.0, first_exercise_results_file, "xor")
+            xor_breaking_epoch, xor_training_error = xor_simple_perceptron.train(xor_x_values, xor_y_values, learning_rate, epoch_amount, rosenblatt_optimizer, squared_error, 1.0, first_exercise_results_file, "xor")
 
     plots_for_exercise_1(os.path.join(results_data_dir_name, results_files[0]), learning_rates)
 
@@ -86,7 +87,7 @@ if __name__ == '__main__':
                 testing_set = configuration[1]
 
                 perceptron = Perceptron(len(x_values[0]), identity, prime_identity)
-                breaking_epoch, training_error = perceptron.train(training_set[0], training_set[1], learning_rate, epoch_amount,mean_error, 0.9, second_exercise_training_results_file, "identity", True,1.0,partition_index+1)
+                breaking_epoch, training_error = perceptron.train(training_set[0], training_set[1], learning_rate, epoch_amount,gradient_descent_optimizer,mean_error, 0.1, second_exercise_training_results_file, "identity", True,1.0,partition_index+1)
                 training_errors.append(training_error)
 
                 training_data_prediction_error = get_prediction_error(perceptron, training_set[0], training_set[1], mean_error)
@@ -116,7 +117,7 @@ if __name__ == '__main__':
                     training_set = configuration[0]
                     testing_set = configuration[1]
                     perceptron = Perceptron(len(x_values[0]), tanh, prime_tanh)
-                    breaking_epoch, training_error = perceptron.train(training_set[0], training_set[1], learning_rate, epoch_amount, mean_error, 0.9, second_exercise_training_results_file, f"tanh_linear_b_{beta}", True, beta, partition_index+1)
+                    breaking_epoch, training_error = perceptron.train(training_set[0], training_set[1], learning_rate, epoch_amount, gradient_descent_optimizer,mean_error, 0.1, second_exercise_training_results_file, f"tanh_linear_b_{beta}", True, beta, partition_index+1)
                     training_errors.append(training_error)
 
                     training_data_prediction_error = get_prediction_error(perceptron, training_set[0], training_set[1], mean_error, descale_fun = scale_functions.descale_tanh)
@@ -145,7 +146,7 @@ if __name__ == '__main__':
                     training_set = configuration[0]
                     testing_set = configuration[1]
                     perceptron = Perceptron(len(x_values[0]), tanh, prime_tanh)
-                    breaking_epoch, training_error = perceptron.train(training_set[0], training_set[1], learning_rate, epoch_amount, mean_error, 0.9, second_exercise_training_results_file, "tanh_non_linear", True, beta, partition_index+1)
+                    breaking_epoch, training_error = perceptron.train(training_set[0], training_set[1], learning_rate, epoch_amount, gradient_descent_optimizer, mean_error, 0.1, second_exercise_training_results_file, "tanh_non_linear", True, beta, partition_index+1)
                     training_errors.append(training_error)
 
                     training_data_prediction_error = get_prediction_error(perceptron, training_set[0], training_set[1], mean_error, descale_fun = scale_functions.descale_tanh)
@@ -173,7 +174,7 @@ if __name__ == '__main__':
                     training_set = configuration[0]
                     testing_set = configuration[1]
                     perceptron = Perceptron(len(x_values[0]), logistic, prime_logistic)
-                    breaking_epoch, training_error = perceptron.train(training_set[0], training_set[1], learning_rate, epoch_amount,mean_error, 0.9, second_exercise_training_results_file, "logistic", True, beta, partition_index+1)
+                    breaking_epoch, training_error = perceptron.train(training_set[0], training_set[1], learning_rate, epoch_amount, gradient_descent_optimizer,mean_error, 0.1, second_exercise_training_results_file, "logistic", True, beta, partition_index+1)
                     training_errors.append(training_error)
 
                     training_data_prediction_error = get_prediction_error(perceptron, training_set[0], training_set[1], mean_error, descale_fun = scale_functions.descale_logistic)
