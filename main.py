@@ -5,7 +5,7 @@ from typing import List
 from neural_network.models.basic_perceptron import Perceptron
 from stats import plots_for_exercise_1
 from neural_network.activation_functions import step, identity, prime_identity, tanh, prime_tanh, logistic, prime_logistic
-from neural_network.error_functions import squared_error
+from neural_network.error_functions import squared_error, mean_error
 from partition_methods import k_cross_validation
 from metric_functions import get_prediction_error
 
@@ -89,7 +89,7 @@ if __name__ == '__main__':
             training_data_prediction_error_std = np.std(training_data_prediction_errors)
             testing_data_mean_prediction_error = np.mean(testing_data_prediction_errors)
             testing_data_prediction_error_std = np.std(testing_data_prediction_errors)
-            second_exercise_results_file.write(f"{seed},identity,{learning_rate},{1.0},{breaking_epoch},square_error,{training_mean_error},{training_error_std},{training_data_mean_prediction_error},{training_data_prediction_error_std},{testing_data_mean_prediction_error},{testing_data_prediction_error_std}\n")
+            second_exercise_results_file.write(f"{seed},identity,{1.0},{learning_rate},{breaking_epoch},square_error,{training_mean_error},{training_error_std},{training_data_mean_prediction_error},{training_data_prediction_error_std},{testing_data_mean_prediction_error},{testing_data_prediction_error_std}\n")
 
     # using tanh(x) with b around [0.01, 0.1] to have a valid aproximation to x
     beta_values_for_linear = [0.01, 0.05, 0.1]
