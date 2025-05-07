@@ -279,6 +279,38 @@ def animate_regression_plane_3D(activation_function, learning_rate, epochs, beta
     ani.save("graphs/animations/" + save_name + ".gif", writer='pillow', fps=2)
 
 
+def general_error_plots_for_exercise_2():
+    df = pd.read_csv("output_data/ej2_data_errors.csv")
+
+    filtered_df = df[(df['beta'] == 0.1) & (df['learning_rate'] == 0.0001)]
+    grouped = filtered_df.groupby('activation_function').mean(numeric_only=True)
+
+    activation_functions = grouped.index.tolist()
+
+    # GRAFICO 1: training_data_mean_prediction_error vs testing_data_mean_prediction_error
+    plt.figure(figsize=(8,5))
+    x = range(len(activation_functions))
+    plt.bar(x, grouped['training_data_mean_prediction_error'], width=0.4, label='Training', align='center')
+    plt.bar([i + 0.4 for i in x], grouped['testing_data_mean_prediction_error'], width=0.4, label='Testing', align='center')
+    plt.xticks([i + 0.2 for i in x], activation_functions, rotation=45)
+    plt.ylabel("Mean Prediction Error")
+    plt.title("Training vs Testing Prediction Error by Activation Function")
+    plt.legend()
+    plt.tight_layout()
+    plt.savefig("graphs/errors/training_vs_testing_data_mean_prediction_error.png")
+
+    # GRAFICO 2: training_data_prediction_error_std vs testing_data_prediction_error_std
+    plt.figure(figsize=(8,5))
+    plt.bar(x, grouped['training_data_prediction_error_std'], width=0.4, label='Training STD', align='center')
+    plt.bar([i + 0.4 for i in x], grouped['testing_data_prediction_error_std'], width=0.4, label='Testing STD', align='center')
+    plt.xticks([i + 0.2 for i in x], activation_functions, rotation=45)
+    plt.ylabel("Prediction Error STD")
+    plt.title("Prediction Error STD (Training vs Testing)")
+    plt.legend()
+    plt.tight_layout()
+    plt.savefig("graphs/errors/training_vs_testing_data_prediction_error_std.png")
+
+
 
 if __name__ == '__main__':
     #results_files:List[str] = ["ej1_data.csv", "ej2_data.csv", "ej3_data.csv", "ej4_data.csv"]
@@ -291,4 +323,5 @@ if __name__ == '__main__':
     #animate_decision_boundary_2D("and", learning_rate=0.0001, epochs=200)
     #animate_decision_boundary_2D("xor", learning_rate=0.0001, epochs=200)
     #animate_regression_plane_3D("identity", learning_rate=0.0001, epochs=200, beta=1.0, partition=1)
+    general_error_plots_for_exercise_2()
 
