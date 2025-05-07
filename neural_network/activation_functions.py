@@ -23,3 +23,9 @@ def logistic(x:float, beta:float)->float:
 
 def prime_logistic(x:float, beta:float)->float:
     return 2 * beta * logistic(x, beta) * (1 - logistic(x, beta))
+
+def relu(x):
+    return max(0, x)
+
+def relu_derivative(x):
+    return 1 if x > 0 else 0
