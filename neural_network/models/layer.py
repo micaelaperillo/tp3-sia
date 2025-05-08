@@ -12,7 +12,7 @@ class Layer:
         # now each weight has a shape of 0
         self.weights_matrix = np.random.rand(num_neurons, num_previous_layer_neurons + 1) * 0.1
         self.a_j_values = None
-        self.z_j_values = None
+        self.h_j_values = None
         self.neurons: list[MultiLayerPerceptron] = []
         for i in range(num_neurons):
             perceptron = MultiLayerPerceptron(num_inputs, activation_function)
@@ -20,12 +20,12 @@ class Layer:
 
     def forward(self, inputs, beta=1.0):
         activated_outputs = []
-        z_values = []
+        h_values = []
         input_with_bias = np.insert(inputs, 0, 1)  # añado el bias como x0 = 1
         for i, neuron in enumerate(self.neurons):
-            a_j, z_j = neuron.predict(input_with_bias, self.weights_matrix[i], beta)
-            z_values.append(z_j)
+            a_j, h_j = neuron.predict(input_with_bias, self.weights_matrix[i], beta)
+            h_values.append(h_j)
             activated_outputs.append(a_j)
         self.a_j_values = activated_outputs        
-        self.z_j_values = z_values
+        self.h_j_values = h_values
         return np.array(activated_outputs)
