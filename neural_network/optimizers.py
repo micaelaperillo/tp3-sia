@@ -1,7 +1,7 @@
-from typing import List, Callable
+from typing import List, Callable, Union
 from neural_network.activation_functions import ActivationFunctionType
 
-OptimizerFunctionType = Callable[[float, float, List[float]], List[float]] 
+OptimizerFunctionType = Union[Callable[[float, float, List[float]], List[float]],Callable[[float, float, float, ActivationFunctionType, float, float], List[float]]] 
 
 def rosenblatt_optimizer(learning_rate:float, basic_error:float, data_with_bias:List[float]):
     return learning_rate * basic_error * data_with_bias
