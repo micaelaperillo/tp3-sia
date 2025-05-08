@@ -17,30 +17,25 @@ if not os.path.exists("graphs"):
 def plots_for_exercise_1(results_file:str, learning_rates:List[float]):
     df_for_exercise_1 = pd.read_csv(results_file)
     for learning_rate in learning_rates: 
-        plot_training_error_vs_epoch_for_each_method(df_for_exercise_1, 43, learning_rate)
+        plot_training_error_vs_epoch_for_each_method(df_for_exercise_1, 43, learning_rate, "and", "Error Cuadrático")
+        plot_training_error_vs_epoch_for_each_method(df_for_exercise_1, 43, learning_rate, "xor", "Error cuadrático")
 
 
-def plot_training_error_vs_epoch_for_each_method(df, seed:int, learning_rate:float):
+def plot_training_error_vs_epoch_for_each_method(df, seed:int, learning_rate:float, method:str, error_function_name:str):
     filtered_by_seed = df[df['seed'] == seed]
     filtered_by_learning_rate = filtered_by_seed[filtered_by_seed['learning_rate'] == learning_rate]
 
-    and_training = filtered_by_learning_rate[filtered_by_learning_rate['method'] == 'and']
-    xor_training = filtered_by_learning_rate[filtered_by_seed['method'] == 'xor']
+    if (method != "and" and method != "xor"):
+        and_training = filtered_by_learning_rate[filtered_by_learning_rate['activation_function'] == method]
+    else:
+        and_training = filtered_by_learning_rate[filtered_by_learning_rate['method'] == method]
 
-    plt.plot(and_training['epoch'], and_training['error'])
+    plt.scatter(and_training['epoch'], and_training['error'])
     plt.title("Variación del error por épocas")
     plt.xlabel("Época")
-    plt.ylabel("Error cuadrático")
+    plt.ylabel(f"{error_function_name}")
     plt.grid(True)
-    plt.savefig(f"graphs/and_method_error_vs_epochs_s_{seed}_eta_{learning_rate}.png")
-    plt.clf()
-
-    plt.plot(xor_training['epoch'], xor_training['error'])
-    plt.title("Variación del error por épocas")
-    plt.xlabel("Época")
-    plt.ylabel("Error cuadrático")
-    plt.grid(True)
-    plt.savefig(f"graphs/xor_method_error_vs_epochs_s_{seed}_eta_{learning_rate}.png")
+    plt.savefig(f"graphs/errors/{method}_error_vs_epochs_s_{seed}_eta_{learning_rate}_{error_function_name}.png")
     plt.clf()
 
 def plots_for_exercise_2(results_file:str, error_file:str):
@@ -50,6 +45,12 @@ def plots_for_exercise_2(results_file:str, error_file:str):
     plot_linear_perceptron_errors_for_identity_function(df_errors, 43)
     for learning_rate in learning_rates:
         plot_linear_perceptron_errors_for_different_beta_by_learning_rate(df_errors, learning_rate, 43)
+        plot_training_error_vs_epoch_for_each_method(df_results, 43, learning_rate, "identity", "Error promedio")
+        plot_training_error_vs_epoch_for_each_method(df_results, 43, learning_rate, "tanh_linear_b_0.1", "Error promedio")
+        plot_training_error_vs_epoch_for_each_method(df_results, 43, learning_rate, "tanh_linear_b_0.01", "Error promedio")
+        plot_training_error_vs_epoch_for_each_method(df_results, 43, learning_rate, "tanh_linear_b_0.05", "Error promedio")
+        plot_training_error_vs_epoch_for_each_method(df_results, 43, learning_rate, "tanh_non_linear", "Error promedio")
+        plot_training_error_vs_epoch_for_each_method(df_results, 43, learning_rate, "logistic", "Error promedio")
 
 def plot_linear_perceptron_errors_for_identity_function(df, seed:int):
     filtered = df [(df['seed'] == seed) & (df['activation_function'] == 'identity')]
