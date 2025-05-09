@@ -19,13 +19,13 @@ class Layer:
             self.neurons.append(perceptron)
 
     def forward(self, inputs, beta=1.0):
-        activated_outputs = []
-        h_values = []
+        activated_outputs = np.array([])
+        h_values = np.array([])
         input_with_bias = np.insert(inputs, 0, 1)  # añado el bias como x0 = 1
         for i, neuron in enumerate(self.neurons):
             a_j, h_j = neuron.predict(input_with_bias, self.weights_matrix[i], beta)
-            h_values.append(h_j)
-            activated_outputs.append(a_j)
+            h_values = np.append(h_values, h_j)
+            activated_outputs = np.append(activated_outputs, a_j)
         self.a_j_values = activated_outputs        
         self.h_j_values = h_values
-        return np.array(activated_outputs)
+        return activated_outputs
