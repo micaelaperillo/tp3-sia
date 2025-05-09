@@ -9,7 +9,8 @@ class NeuralNetwork:
     # hidden_layers_amount: [35,15, 10] -> last layer has to be related to the problem
     # x_values = all the numbers used for clasification
     def __init__(self, x_values:List[List[int]], y_values:List[int], hidden_layers_neuron_amounts:List[int], activation_function:ActivationFunctionType, prime_activation_function:ActivationFunctionType, seed:int):
-        self.layers = [ Layer(len(x_values[0]), hidden_layers_neuron_amounts[(current_layer_index - 1)], current_layer_neuron_amount, activation_function, prime_activation_function, seed) for current_layer_index, current_layer_neuron_amount in enumerate(hidden_layers_neuron_amounts[1:])]
+        # FIJARSE EL TEMA DEL INDICE DE HIDDEN LAYERS
+        self.layers = [ Layer(len(x_values[0]), hidden_layers_neuron_amounts[current_layer_index], current_layer_neuron_amount, activation_function, prime_activation_function, seed) for current_layer_index, current_layer_neuron_amount in enumerate(hidden_layers_neuron_amounts[1:])]
         self.x_values = x_values
         self.y_values = y_values
 
@@ -28,10 +29,13 @@ class NeuralNetwork:
                 # [0.0 1.0 0.0 0.0 0.0] - [0 0.3 -0.3 -0.4 0 0 0]
                 basic_error = (y_value - prediction)
 
-                if basic_error != 0:
+                if (basic_error < 0.01).all():
                     #updating the weights and biases using backpropagation
                     reverse_layers = self.layers[::-1]
+                    last_delta = np.ones(len(self.layers[-1].h_j_values))
                     for layer_index, layer in enumerate(reverse_layers):
-                        delta_w_array = optimizer(learning_rate, basic_error, reverse_layers[layer_index-1].a_j_values if layer_index > 0 else input_vector, layer.prime_activation_function, prediction, beta)
+                        delta = basic_error * layer.prime_activation_function(layer.h_j_values, beta) * last_delta
+                        #delta_w_array = optimizer(learning_rate, basic_error, reverse_layers[layer_index-1].a_j_values if layer_index > 0 else input_vector, layer.prime_activation_function, prediction, beta)
+                        delta_w_array = optimizer(learning_rate,delta, reverse_layers[layer_index-1].a_j_values if layer_index > 0 else input_vector)
                         layer.weights_matrix += delta_w_array
-    
+                        last_delta = delta
