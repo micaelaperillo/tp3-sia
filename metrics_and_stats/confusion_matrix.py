@@ -1,4 +1,6 @@
 import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
 
 class ConfusionMatrix:
 
@@ -25,7 +27,18 @@ class ConfusionMatrix:
                 self.confusion_matrix[label_to_index[y_true[i]], label_to_index[y_pred[i]]] += 1
 
     def display(self):
-        pass
 
-    def plot(self):
-        pass
+        plt.figure(figsize=(6, 5))
+        
+        if (self.labels is None):
+            # Binary confusion matrix
+            plt.title('Matriz de Confusión Binaria')
+            sns.heatmap(self.confusion_matrix, annot=True, cmap='Blues', fmt='d', cbar=True,
+                        xticklabels=self.labels, yticklabels=self.labels, square=True)
+        else:
+            # Multiclass confusion matrix
+            plt.title('Matriz de Confusión Multiclase')
+            sns.heatmap(self.confusion_matrix, annot=True, cmap='Blues', fmt='d', cbar=True, square=True)
+
+        plt.tight_layout()
+        plt.show()
