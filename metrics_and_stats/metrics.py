@@ -1,6 +1,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
 from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay
+from confusion_matrix import ConfusionMatrix
 
 def plot_binary_confusion_matrix(y_true, y_pred, labels=["Negative", "Positive"], title="Binary Confusion Matrix"):
     cm = confusion_matrix(y_true, y_pred)
@@ -30,5 +31,9 @@ def plot_multiclass_confusion_matrix(y_true, y_pred, labels=None, title="Multicl
 if __name__ == "__main__":
     y_true = [0, 1, 1, 0, 1, 0, 1, 1]
     y_pred = [0, 0, 1, 0, 1, 1, 1, 0]
-    plot_binary_confusion_matrix(y_true, y_pred)
+    # plot_binary_confusion_matrix(y_true, y_pred)
     plot_multiclass_confusion_matrix(y_true, y_pred, labels={0: "Neg ", 1: "Pos"})
+
+    # cm = ConfusionMatrix(y_true, y_pred)
+    cm = ConfusionMatrix(y_true, y_pred, {0: "Neg ", 1: "Pos"})
+    print(cm.confusion_matrix)
