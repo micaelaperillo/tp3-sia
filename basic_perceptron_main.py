@@ -3,12 +3,12 @@ import numpy as np
 import pandas as pd
 from typing import List
 from neural_network.models.basic_perceptron import Perceptron
-from stats import plots_for_exercise_1
+from metrics_and_stats.stats import plots_for_exercise_1
 from neural_network.activation_functions import step, identity, prime_identity, tanh, prime_tanh, logistic, prime_logistic
 from neural_network.error_functions import squared_error, mean_error
-from partition_methods import k_cross_validation
+from neural_network.partition_methods import k_cross_validation
 from metric_functions import get_prediction_error
-from scale_functions import ScaleFunctions
+from neural_network.scale_functions import ScaleFunctions
 from neural_network.optimizers import rosenblatt_optimizer, gradient_descent_optimizer
 
 

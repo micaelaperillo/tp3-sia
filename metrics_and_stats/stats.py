@@ -8,7 +8,7 @@ import numpy as np
 from matplotlib.lines import Line2D
 from mpl_toolkits.mplot3d import Axes3D
 from matplotlib import animation
-from stats_utils import load_ej1_animation_weights_from_csv, load_ej2_animation_weights_from_csv, get_ej1_data_xy, get_ej2_data_xy, load_ej1_last_weights_from_csv, load_ej2_last_weights_from_csv, get_save_name, get_title
+from metrics_and_stats.stats_utils import load_ej1_animation_weights_from_csv, load_ej2_animation_weights_from_csv, get_ej1_data_xy, get_ej2_data_xy, load_ej1_last_weights_from_csv, load_ej2_last_weights_from_csv, get_save_name, get_title
 
 
 if not os.path.exists("graphs"):
