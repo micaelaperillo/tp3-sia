@@ -1,8 +1,11 @@
+import os
 import numpy as np
 from neural_network.models.neural_network import NeuralNetwork
 from neural_network.activation_functions import relu, logistic, prime_logistic, relu_derivative
-from neural_network.optimizers import rosenblatt_optimizer, gradient_descent_optimizer
+from neural_network.optimizers import rosenblatt_optimizer, gradient_descent_optimizer_with_delta, momentum_gradient_descent_optimizer_with_delta, adam_optimizer_with_delta
 from neural_network.error_functions import mean_error, squared_error
+from neural_network.partition_methods import k_cross_validation
+from metric_functions import get_prediction_error_for_neural_network
 
 if __name__ == '__main__':
 
@@ -16,50 +19,124 @@ if __name__ == '__main__':
         digits_vectors.append(flat_list)
 
     seed:int = 43
+    results_data_dir_name = "output_data"
+    if not os.path.exists(results_data_dir_name):
+        os.makedirs(results_data_dir_name)
+    third_exercise_results_file = open(os.path.join(results_data_dir_name, "ej3_data.csv"), "w", newline='')
+    third_exercise_results_file.write(f"seed,partition,weight_matrixes_per_layers,discriminator,beta,learning_rate,total_epochs,epoch,error\n")
 
     # Discriminacion de paridad:
-    # impar: [0, 1], par: [1, 0]
-    y_values = [[1, 0], [0, 1],[1, 0], [0, 1], [1, 0], [0, 1], [1, 0], [0, 1], [1, 0], [0, 1]]
-    hidden_layers_amounts = [[35, 16, 2]]
-    activation_functions = [(relu, relu_derivative), (logistic, prime_logistic)]
-    optimizers = [gradient_descent_optimizer, rosenblatt_optimizer]
+    # impar: [0.0, 1.0], par: [1.0, 0.0]
+    x_values = np.array(digits_vectors)
+    y_values = np.array([[1.0, 0.0], [0.0, 1.0],[1.0, 0.0], [0.0, 1.0], [1.0, 0.0], [0.0, 1.0], [1.0, 0.0], [0.0, 1.0], [1.0, 0.0], [0.0, 1.0]])
+    k = 5
+    training_testing_pairs = k_cross_validation(k, x_values, y_values)
+
+    network_configurations = [[35, 16, 2]]
+    activation_functions = [(relu, relu_derivative)] 
+    optimizers = [gradient_descent_optimizer_with_delta, momentum_gradient_descent_optimizer_with_delta, adam_optimizer_with_delta]
     error_functions = [squared_error, mean_error]
-    epochs = [200]
-    learning_rates = [0.0001, 0.05]
-    beta_values = [0.01, 0.05, 0.1]
+    epochs = [200, 500, 1000]
+    learning_rates = [0.0001, 0.00005, 0.00001]
+    alpha_values = [0.8, 0.85, 0.9]
 
 
-    for layer_amount in hidden_layers_amounts:
+    optimizer = gradient_descent_optimizer_with_delta
+    max_error = 1.0
+    for network_configuration in network_configurations:
         for activation_function in activation_functions:
-            for optimizer in optimizers:
                 for error_function in error_functions:
-                    for total_epochs in epochs:
-                        for learning_rate in learning_rate:
-                            for beta in beta_values:
-                                neural_network = NeuralNetwork(digits_vectors, y_values, layer_amount, activation_function[0], activation_function[1], seed)
-                                training_errors = neural_network.backpropagate(digits_vectors, y_values, learning_rate, total_epochs, optimizer, error_function, beta)
+                    for learning_rate in learning_rates:
+                        for total_epochs in epochs:
+                            training_errors = []
+                            testing_data_prediction_errors = []
+                            for partition_index, configuration in enumerate(training_testing_pairs):
+                                training_set = configuration[0]
+                                testing_set = configuration[1]
 
+                                neural_network = NeuralNetwork(training_set[0], training_set[1], network_configuration, activation_function[0], activation_function[1], seed)
+                                breaking_epoch, training_error = neural_network.backpropagate(digits_vectors, y_values, learning_rate, total_epochs, optimizer, error_function, max_error, third_exercise_results_file, "parity", False, partition_index)
+
+                                testing_data_prediction_error = get_prediction_error_for_neural_network(neural_network, testing_set[0], testing_set[1], mean_error)
+                                testing_data_prediction_errors.append(testing_data_prediction_error)
+
+                            training_mean_error = np.mean(training_errors)
+                            training_error_std = np.std(training_errors)                            
+                            testing_data_mean_prediction_error = np.mean(testing_data_prediction_errors)
+                            testing_data_prediction_error_std = np.std(testing_data_prediction_errors)
+                            print(f"training_mean_error:{training_mean_error} +- {training_error_std}, testing_mean_error: {testing_data_mean_prediction_error} +- {testing_data_prediction_error_std}")
+
+    optimizer = momentum_gradient_descent_optimizer_with_delta
+    max_error = 1.0
+    for network_configuration in network_configurations:
+        for activation_function in activation_functions:
+                for error_function in error_functions:
+                    for learning_rate in learning_rate:
+                        for alpha in alpha_values:
+                            for total_epochs in epochs:
+                                training_errors = []
+                                testing_data_prediction_errors = []
+                                for partition_index, configuration in enumerate(training_testing_pairs):
+                                    training_set = configuration[0]
+                                    testing_set = configuration[1]
+
+                                    neural_network = NeuralNetwork(training_set[0], training_set[1], network_configuration, activation_function[0], activation_function[1], seed)
+                                    breaking_epoch, training_error = neural_network.backpropagate(digits_vectors, y_values, learning_rate, total_epochs, optimizer, error_function, max_error, third_exercise_results_file, "parity", False, partition_index,1.0, alpha)
+
+                                    testing_data_prediction_error = get_prediction_error_for_neural_network(neural_network, testing_set[0], testing_set[1], mean_error)
+                                    testing_data_prediction_errors.append(testing_data_prediction_error)
+
+                                training_mean_error = np.mean(training_errors)
+                                training_error_std = np.std(training_errors)                            
+                                testing_data_mean_prediction_error = np.mean(testing_data_prediction_errors)
+                                testing_data_prediction_error_std = np.std(testing_data_prediction_errors)
+                                print(f"training_mean_error:{training_mean_error} +- {training_error_std}, testing_mean_error: {testing_data_mean_prediction_error} +- {testing_data_prediction_error_std}")
+
+    optimizer = adam_optimizer_with_delta
+    max_error = 1.0
+    for network_configuration in network_configurations:
+        for activation_function in activation_functions:
+                for error_function in error_functions:
+                    for learning_rate in learning_rate:
+                        for total_epochs in epochs:
+                            training_errors = []
+                            testing_data_prediction_errors = []
+                            for partition_index, configuration in enumerate(training_testing_pairs):
+                                training_set = configuration[0]
+                                testing_set = configuration[1]
+
+                                neural_network = NeuralNetwork(training_set[0], training_set[1], network_configuration, activation_function[0], activation_function[1], seed)
+                                breaking_epoch, training_error = neural_network.backpropagate(digits_vectors, y_values, learning_rate, total_epochs, optimizer, error_function, max_error, third_exercise_results_file, "parity", False, partition_index,1.0, alpha)
+
+                                testing_data_prediction_error = get_prediction_error_for_neural_network(neural_network, testing_set[0], testing_set[1], mean_error)
+                                testing_data_prediction_errors.append(testing_data_prediction_error)
+
+                            training_mean_error = np.mean(training_errors)
+                            training_error_std = np.std(training_errors)                            
+                            testing_data_mean_prediction_error = np.mean(testing_data_prediction_errors)
+                            testing_data_prediction_error_std = np.std(testing_data_prediction_errors)
+                            print(f"training_mean_error:{training_mean_error} +- {training_error_std}, testing_mean_error: {testing_data_mean_prediction_error} +- {testing_data_prediction_error_std}")
 
 
     # Discriminacion de digito:
     # Por cada digito n crea una lista donde todos los valores son 0 excepto por la posicion n
     # Ejemplo: 1 = [[0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
-    y_values = np.eye(10, dtype=float).tolist()
-    hidden_layers_amount = [[35, 16, 10]]
-    activation_functions = [(relu, relu_derivative), (logistic, prime_logistic)]
-    optimizers = [gradient_descent_optimizer, rosenblatt_optimizer]
-    error_functions = [squared_error, mean_error]
-    epochs = [200]
-    learning_rates = [0.0001, 0.05]
-    beta_values = [0.01, 0.05, 0.1]
-
-    for layer_amount in hidden_layers_amounts:
-        for activation_function in activation_functions:
-            for optimizer in optimizers:
-                for error_function in error_functions:
-                    for total_epochs in epochs:
-                        for learning_rate in learning_rate:
-                            for beta in beta_values:
-                                neural_network = NeuralNetwork(digits_vectors, y_values, layer_amount, activation_function[0], activation_function[1], seed)
-                                training_errors = neural_network.backpropagate(digits_vectors, y_values, learning_rate, total_epochs, optimizer, error_function, beta)
+#    y_values = np.eye(10, dtype=float).tolist()
+#    hidden_layers_amount = [[35, 16, 10]]
+#    activation_functions = [(relu, relu_derivative), (logistic, prime_logistic)]
+#    optimizers = [gradient_descent_optimizer_with_delta, rosenblatt_optimizer]
+#    error_functions = [squared_error, mean_error]
+#    epochs = [200]
+#    learning_rates = [0.0001, 0.05]
+#    beta_values = [0.01, 0.05, 0.1]
+#
+#    for layer_amount in network_configurations:
+#        for activation_function in activation_functions:
+#            for optimizer in optimizers:
+#                for error_function in error_functions:
+#                    for total_epochs in epochs:
+#                        for learning_rate in learning_rate:
+#                            for beta in beta_values:
+#                                neural_network = NeuralNetwork(digits_vectors, y_values, layer_amount, activation_function[0], activation_function[1], seed)
+#                                training_errors = neural_network.backpropagate(digits_vectors, y_values, learning_rate, total_epochs, optimizer, error_function, beta)
 
