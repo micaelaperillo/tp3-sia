@@ -8,7 +8,7 @@ def rosenblatt_optimizer(learning_rate:float, basic_error:float, input_data:List
     return - learning_rate * basic_error * input_data
 
 def gradient_descent_optimizer(learning_rate:float, basic_error:float, input_data:float, prime_activation_function:ActivationFunctionType, h_supra_mu:float, beta:float):
-    return - learning_rate * basic_error * input_data * prime_activation_function(h_supra_mu, beta)
+    return  learning_rate * basic_error * input_data * prime_activation_function(h_supra_mu, beta)
 
 def gradient_descent_optimizer_with_delta(learning_rate:float, delta:float, input_data:float, alpha:float = 0.0):
     return - learning_rate * delta * input_data
