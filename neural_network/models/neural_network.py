@@ -24,7 +24,9 @@ class NeuralNetwork:
         return a_j_vector
     
     def backpropagate(self, input_values:List[List[int]], y_values:List[List[int]], learning_rate:float, epochs:int, optimizer:OptimizerFunctionType, error_function:ErrorFunctionType, max_acceptable_error:float, file, method:str, is_adam_optimizer=False, partition:int=0,activation_beta:float= 1.0, alpha:float= 0.0):
-        file.write(f"{self.seed},{partition},{self.weight_matrixes},{method},{activation_beta},{learning_rate},{epochs},{0},{0.0}\n")
+        file.write(f"{self.seed},{partition},{method},{activation_beta},{learning_rate},{epochs},{0},{0.0}\n")
+        m_k_matrixes = []
+        v_k_matrixes = []
         for epoch in range(epochs):
             for input_vector, y_value in zip(input_values, y_values):
                 prediction = self.predict(input_vector)
@@ -60,10 +62,18 @@ class NeuralNetwork:
                     input_to_layer = self.layers[layer_index-1].a_j_values
 
                 if is_adam_optimizer:
+                    if (epoch == 0):
+                        m_k_matrix = np.zeros((len(delta), len(input_to_layer)))
+                        m_k_matrixes.append(m_k_matrix)
+                        v_k_matrix = np.zeros((len(delta), len(input_to_layer)))
+                        v_k_matrixes.append(v_k_matrix)
+
                     for j in range(len(delta)):
                         for i in range(len(input_to_layer)):
-                            delta_w = optimizer(learning_rate, delta[j], input_to_layer[i], alpha, 0.9, 0.999, 1e-8, epoch)
+                            delta_w, m_k, v_k = optimizer(learning_rate, delta[j], input_to_layer[i], alpha, 0.9, 0.999, 1e-6, m_k_matrixes[layer_index][j][i], v_k_matrixes[layer_index][j][i],epoch)
                             layer.weights_matrix[j][i+1] += delta_w 
+                            m_k_matrixes[layer_index][j][i] = m_k
+                            v_k_matrixes[layer_index][j][i] = v_k
                 else:
                     for j in range(len(delta)):
                         for i in range(len(input_to_layer)):
@@ -78,7 +88,7 @@ class NeuralNetwork:
                 errors.append(basic_error)
             
             network_error = error_function(np.array(errors))
-            file.write(f"{self.seed},{partition},{self.weight_matrixes},{method},{learning_rate},{epochs},{epoch+1},{network_error}\n")
+            file.write(f"{self.seed},{partition},{method},{activation_beta},{learning_rate},{epochs},{epoch+1},{network_error}\n")
 
             if network_error < max_acceptable_error:
                 return epoch+1, network_error
