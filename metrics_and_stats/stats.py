@@ -22,29 +22,48 @@ def plots_for_exercise_1(results_file:str, learning_rates:List[float]):
 
 
 def plot_training_error_vs_epoch_for_each_method(df, seed:int, learning_rate:float, method:str, error_function_name:str):
-    filtered_by_seed = df[df['seed'] == seed]
-    filtered_by_learning_rate = filtered_by_seed[filtered_by_seed['learning_rate'] == learning_rate]
+    df_filt = df[(df['seed'] == seed) &
+                 (df['learning_rate'] == learning_rate)]
 
-    if (method != "and" and method != "xor"):
-        and_training = filtered_by_learning_rate[filtered_by_learning_rate['activation_function'] == method]
+    if method in ("and", "xor"):
+        df_filt = df_filt[df_filt['method'] == method]
     else:
-        and_training = filtered_by_learning_rate[filtered_by_learning_rate['method'] == method]
+        df_filt = df_filt[df_filt['activation_function'] == method]
 
-    plt.scatter(and_training['epoch'], and_training['error'])
-    plt.title("Variación del error por épocas")
+    df_filt['epoch_group'] = (df_filt['epoch'] // 100) * 100
+    df_grouped = df_filt.groupby('epoch_group').agg(
+        error_mean=('error', 'mean'),
+        error_std=('error', 'std')
+    ).reset_index()
+
+    plt.figure()
+    plt.errorbar(df_grouped['epoch_group'], df_grouped['error_mean'],
+                 yerr=df_grouped['error_std'], fmt='-o', capsize=3, label='Error medio')
+    plt.title("Error medio por época")
     plt.xlabel("Época")
-    plt.ylabel(f"{error_function_name}")
+    plt.ylabel(error_function_name)
     plt.grid(True)
-    plt.savefig(f"graphs/errors/{method}_error_vs_epochs_s_{seed}_eta_{learning_rate}_{error_function_name}.png")
-    plt.clf()
+    plt.legend()
+
+    out_dir = os.path.join("graphs", "errors")
+    os.makedirs(out_dir, exist_ok=True)
+
+    filename = f"{method}_error_vs_epochs_s_{seed}_eta_{learning_rate}_{error_function_name}_std.png"
+    plt.savefig(os.path.join(out_dir, filename))
+    plt.close()
 
 def plots_for_exercise_2(results_file:str, error_file:str):
     df_results = pd.read_csv(results_file)
     df_errors = pd.read_csv(error_file)
-    learning_rates:List[float] = [0.0001, 0.00005, 0.00001]
-    plot_linear_perceptron_errors_for_identity_function(df_errors, 43)
+    learning_rates:List[float] = [1,0.5,0.01,0.0001, 0.00005, 0.00001, 0.000001]
+    plot_linear_perceptron_errors_for_activation_function(df_errors, 43,"identity")
+    plot_linear_perceptron_errors_for_activation_function(df_errors, 43,"tanh_non_linear")
+    plot_linear_perceptron_errors_for_activation_function(df_errors, 43,"tanh_linear")
+    plot_linear_perceptron_errors_for_activation_function(df_errors, 43,"logistic_non_linear")
     for learning_rate in learning_rates:
-        plot_linear_perceptron_errors_for_different_beta_by_learning_rate(df_errors, learning_rate, 43)
+        plot_linear_perceptron_errors_for_different_beta_by_learning_rate(df_errors, learning_rate, 43,"tanh_linear")
+        plot_linear_perceptron_errors_for_different_beta_by_learning_rate(df_errors, learning_rate, 43,"tanh_non_linear")
+        plot_linear_perceptron_errors_for_different_beta_by_learning_rate(df_errors, learning_rate, 43,"logistic_non_linear")
         plot_training_error_vs_epoch_for_each_method(df_results, 43, learning_rate, "identity", "Error promedio")
         plot_training_error_vs_epoch_for_each_method(df_results, 43, learning_rate, "tanh_linear_b_0.1", "Error promedio")
         plot_training_error_vs_epoch_for_each_method(df_results, 43, learning_rate, "tanh_linear_b_0.01", "Error promedio")
@@ -52,51 +71,67 @@ def plots_for_exercise_2(results_file:str, error_file:str):
         plot_training_error_vs_epoch_for_each_method(df_results, 43, learning_rate, "tanh_non_linear", "Error promedio")
         plot_training_error_vs_epoch_for_each_method(df_results, 43, learning_rate, "logistic", "Error promedio")
 
-def plot_linear_perceptron_errors_for_identity_function(df, seed:int):
-    filtered = df [(df['seed'] == seed) & (df['activation_function'] == 'identity')]
+def plot_linear_perceptron_errors_for_activation_function(df, seed:int, activation_function:str):
+    filtered = df[(df['seed'] == seed) & (df['activation_function'] == activation_function)]
 
-    plt.bar(filtered['learning_rate'].astype(str), filtered['training_mean_error'], yerr=filtered['training_error_std'], capsize=5, color='skyblue', alpha=0.8)
+    # Agrupar por learning rate para promediar y evitar múltiples barras por valor
+    grouped = filtered.groupby('learning_rate', as_index=False)[[
+    'training_mean_error',
+    'training_error_std',
+    'training_data_mean_prediction_error',
+    'training_data_prediction_error_std',
+    'testing_data_mean_prediction_error',
+    'testing_data_prediction_error_std'
+    ]].mean()
+
+
+    plt.bar(grouped['learning_rate'].astype(str), grouped['training_mean_error'], 
+            yerr=grouped['training_error_std'], capsize=5, color='skyblue', alpha=0.8)
     plt.xlabel("Learning Rate")
     plt.ylabel("Training Mean Error")
-    plt.title(f"Training mean error with identity for different learning rates")
+    plt.title(f"Training mean error with {activation_function} for different learning rates")
     plt.grid(True, axis='y', linestyle="--", alpha=0.7)
-    plt.savefig("graphs/identity_training_errors_for_learning_rates.png")
+    plt.savefig(f"graphs/{activation_function}_training_errors_for_learning_rates.png")
+    plt.clf()
 
-    plt.bar(filtered['learning_rate'].astype(str), filtered['training_data_mean_prediction_error'], yerr=filtered["training_data_prediction_error_std"], capsize=5, color='red', alpha=0.8)
+    plt.bar(grouped['learning_rate'].astype(str), grouped['training_data_mean_prediction_error'], 
+            yerr=grouped["training_data_prediction_error_std"], capsize=5, color='red', alpha=0.8)
     plt.xlabel("Learning Rate")
     plt.ylabel("Training Data Mean Prediction Error")
-    plt.title(f"Training mean prediction error with identity for different learning rates")
+    plt.title(f"Training mean prediction error with {activation_function} for different learning rates")
     plt.grid(True, axis='y', linestyle='--', alpha=0.7)
-    plt.savefig("graphs/identity_training_data_prediction_errors_for_learning_rates.png")
+    plt.savefig(f"graphs/{activation_function}_training_data_prediction_errors_for_learning_rates.png")
     plt.clf()
 
-    plt.bar(filtered['learning_rate'].astype(str), filtered['testing_data_mean_prediction_error'], yerr=filtered["testing_data_prediction_error_std"], capsize=5, color='green', alpha=0.8)
+    plt.bar(grouped['learning_rate'].astype(str), grouped['testing_data_mean_prediction_error'], 
+            yerr=grouped["testing_data_prediction_error_std"], capsize=5, color='green', alpha=0.8)
     plt.xlabel("Learning Rate")
     plt.ylabel("Testing Data Mean Prediction Error")
-    plt.title(f"Testing mean prediction error with identity for different learning rates")
+    plt.title(f"Testing mean prediction error with {activation_function} for different learning rates")
     plt.grid(True, axis='y', linestyle='--', alpha=0.7)
-    plt.savefig("graphs/identity_testing_data_prediction_errors_for_learning_rates.png")
+    plt.savefig(f"graphs/{activation_function}_testing_data_prediction_errors_for_learning_rates.png")
     plt.clf()
 
-def plot_linear_perceptron_errors_for_different_beta_by_learning_rate(df, learning_rate:float, seed:int):
+
+def plot_linear_perceptron_errors_for_different_beta_by_learning_rate(df, learning_rate:float, seed:int, activation_function:str):
     filtered = df[
     (df['seed'] == seed) &
-    (df['activation_function'] == 'tanh_linear') &
+    (df['activation_function'] == {activation_function}) &
     (df['learning_rate'] == learning_rate)
     ]
 
     plt.bar(filtered['beta'].astype(str), filtered['training_mean_error'], yerr=filtered["training_error_std"], capsize=5, color='skyblue', alpha=0.8)
     plt.xlabel("Beta")
     plt.ylabel("Training Mean Error")
-    plt.title(f"Training mean error with linear tanh for learning_rate: {learning_rate}")
+    plt.title(f"Training mean error with {activation_function} for learning_rate: {learning_rate}")
     plt.grid(True, axis='y', linestyle='--', alpha=0.7)
-    plt.savefig(f"graphs/linear_tanh_betas_training_errors_for_learning_rate_{learning_rate}.png")
+    plt.savefig(f"graphs/{activation_function}_betas_training_errors_for_learning_rate_{learning_rate}.png")
     plt.clf()
 
     plt.bar(filtered['beta'].astype(str), filtered['training_data_mean_prediction_error'], yerr=filtered["training_data_prediction_error_std"], capsize=5, color='red', alpha=0.8)
     plt.xlabel("Beta")
     plt.ylabel("Training Data Mean Prediction Error")
-    plt.title(f"Training mean prediction error with linear tanh for learning_rate: {learning_rate}")
+    plt.title(f"Training mean prediction error with {activation_function} for learning_rate: {learning_rate}")
     plt.grid(True, axis='y', linestyle='--', alpha=0.7)
     plt.savefig(f"graphs/linear_tanh_betas_training_data_prediction_errors_for_learning_rate_{learning_rate}.png")
     plt.clf()
@@ -104,9 +139,9 @@ def plot_linear_perceptron_errors_for_different_beta_by_learning_rate(df, learni
     plt.bar(filtered['beta'].astype(str), filtered['testing_data_mean_prediction_error'], yerr=filtered["testing_data_prediction_error_std"], capsize=5, color='green', alpha=0.8)
     plt.xlabel("Beta")
     plt.ylabel("Testing Data Mean Prediction Error")
-    plt.title(f"Testing mean prediction error with linear tanh for learning_rate: {learning_rate}")
+    plt.title(f"Testing mean prediction error with {activation_function} for learning_rate: {learning_rate}")
     plt.grid(True, axis='y', linestyle='--', alpha=0.7)
-    plt.savefig(f"graphs/linear_tanh_betas_testing_data_prediction_errors_for_learning_rate_{learning_rate}.png")
+    plt.savefig(f"graphs/{activation_function}_betas_testing_data_prediction_errors_for_learning_rate_{learning_rate}.png")
     plt.clf()
 
 
