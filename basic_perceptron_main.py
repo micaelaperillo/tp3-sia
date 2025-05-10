@@ -77,11 +77,11 @@ if __name__ == '__main__':
     # linear perceptron
     # descendant gradient
     # using identity
-    training_errors = []
-    training_data_prediction_errors = []
-    testing_data_prediction_errors = []
     for learning_rate in learning_rates:
         for epoch_amount in epochs:
+            training_errors = []
+            training_data_prediction_errors = []
+            testing_data_prediction_errors = []
             for partition_index, configuration in enumerate(training_testing_pairs_lineal):
                 training_set = configuration[0]
                 testing_set = configuration[1]
@@ -107,12 +107,12 @@ if __name__ == '__main__':
     # using tanh(x) with b around [0.01, 0.1] to have a valid aproximation to x
     beta_values_for_linear = [0.01, 0.05, 0.1]
 
-    training_errors = []
-    training_data_prediction_errors = []
-    testing_data_prediction_errors = []
     for learning_rate in learning_rates:
         for epoch_amount in epochs:
             for beta in beta_values_for_linear:
+                training_errors = []
+                training_data_prediction_errors = []
+                testing_data_prediction_errors = []
                 for partition_index,configuration in enumerate(training_testing_pairs_tanh):
                     training_set = configuration[0]
                     testing_set = configuration[1]
@@ -135,13 +135,13 @@ if __name__ == '__main__':
                 second_exercise_results_file.write(f"{seed},tanh_linear,{beta},{learning_rate},{breaking_epoch},square_error,{training_mean_error},{training_error_std},{training_data_mean_prediction_error},{training_data_prediction_error_std},{testing_data_mean_prediction_error},{testing_data_prediction_error_std}\n")
 
     #non-linear perceptron
-    beta_values_for_non_linear = [5,10,70]
-    training_errors = []
-    training_data_prediction_errors = []
-    testing_data_prediction_errors = []
+    beta_values_for_non_linear = [1.0]
     for learning_rate in learning_rates:
         for epoch_amount in epochs:
             for beta in beta_values_for_non_linear:
+                training_errors = []
+                training_data_prediction_errors = []
+                testing_data_prediction_errors = []
                 for partition_index,configuration in enumerate(training_testing_pairs_tanh):
                     training_set = configuration[0]
                     testing_set = configuration[1]
@@ -164,12 +164,12 @@ if __name__ == '__main__':
                 second_exercise_results_file.write(f"{seed},tanh_non_linear,{beta},{learning_rate},{breaking_epoch},square_error,{training_mean_error},{training_error_std},{training_data_mean_prediction_error},{training_data_prediction_error_std},{testing_data_mean_prediction_error},{testing_data_prediction_error_std}\n")
         
     #for logistic function
-    training_errors = []
-    training_data_prediction_errors = []
-    testing_data_prediction_errors = []
     for learning_rate in learning_rates:
         for epoch_amount in epochs:
             for beta in beta_values_for_non_linear:
+                training_errors = []
+                training_data_prediction_errors = []
+                testing_data_prediction_errors = []
                 for partition_index,configuration in enumerate(training_testing_pairs_logistic):
                     training_set = configuration[0]
                     testing_set = configuration[1]

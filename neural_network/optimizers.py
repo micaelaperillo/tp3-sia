@@ -5,17 +5,17 @@ import numpy as np
 OptimizerFunctionType = Union[Callable[[float, float, List[float]], List[float]],Callable[[float, float, float, ActivationFunctionType, float, float], List[float]]] 
 
 def rosenblatt_optimizer(learning_rate:float, basic_error:float, input_data:List[float]):
-    return - learning_rate * basic_error * input_data
+    return learning_rate * basic_error * input_data
 
 def gradient_descent_optimizer(learning_rate:float, basic_error:float, input_data:float, prime_activation_function:ActivationFunctionType, h_supra_mu:float, beta:float):
     return  learning_rate * basic_error * input_data * prime_activation_function(h_supra_mu, beta)
 
 def gradient_descent_optimizer_with_delta(learning_rate:float, delta:float, input_data:float, alpha:float = 0.0):
-    return - learning_rate * delta * input_data
+    return learning_rate * delta * input_data
 
 def momentum_gradient_descent_optimizer_with_delta(learning_rate:float, delta:float, input_data:float, alpha:float):
-    gradient_descent = - gradient_descent_optimizer_with_delta(learning_rate, delta, input_data)/learning_rate 
-    return - learning_rate * gradient_descent + alpha * gradient_descent
+    gradient_descent = gradient_descent_optimizer_with_delta(learning_rate, delta, input_data)/learning_rate 
+    return learning_rate * gradient_descent + alpha * gradient_descent
 
 def adam_optimizer_with_delta(learning_rate:float, delta:List[float], input_data:List[float], alpha: float, beta1: float, beta2: float, epsilon: float, epoch:int) -> List[float]:
     m = 0
