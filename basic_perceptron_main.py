@@ -7,7 +7,7 @@ from metrics_and_stats.stats import plots_for_exercise_1
 from neural_network.activation_functions import step, identity, prime_identity, tanh, prime_tanh, logistic, prime_logistic
 from neural_network.error_functions import squared_error, mean_error
 from neural_network.partition_methods import k_cross_validation
-from metric_functions import get_prediction_error
+from metric_functions import get_prediction_error_for_perceptron
 from neural_network.scale_functions import ScaleFunctions
 from neural_network.optimizers import rosenblatt_optimizer, gradient_descent_optimizer
 
@@ -90,10 +90,10 @@ if __name__ == '__main__':
                 breaking_epoch, training_error = perceptron.train(training_set[0], training_set[1], learning_rate, epoch_amount,gradient_descent_optimizer,mean_error, 0.1, second_exercise_training_results_file, "identity", True,1.0,partition_index+1)
                 training_errors.append(training_error)
 
-                training_data_prediction_error = get_prediction_error(perceptron, training_set[0], training_set[1], mean_error)
+                training_data_prediction_error = get_prediction_error_for_perceptron(perceptron, training_set[0], training_set[1], mean_error)
                 training_data_prediction_errors.append(training_data_prediction_error)
 
-                testing_data_prediction_error = get_prediction_error(perceptron, testing_set[0], testing_set[1], mean_error)
+                testing_data_prediction_error = get_prediction_error_for_perceptron(perceptron, testing_set[0], testing_set[1], mean_error)
                 testing_data_prediction_errors.append(testing_data_prediction_error)
 
             training_mean_error = np.mean(training_errors)
@@ -120,10 +120,10 @@ if __name__ == '__main__':
                     breaking_epoch, training_error = perceptron.train(training_set[0], training_set[1], learning_rate, epoch_amount, gradient_descent_optimizer,mean_error, 0.1, second_exercise_training_results_file, f"tanh_linear_b_{beta}", True, beta, partition_index+1)
                     training_errors.append(training_error)
 
-                    training_data_prediction_error = get_prediction_error(perceptron, training_set[0], training_set[1], mean_error, descale_fun = scale_functions.descale_tanh)
+                    training_data_prediction_error = get_prediction_error_for_perceptron(perceptron, training_set[0], training_set[1], mean_error, descale_fun = scale_functions.descale_tanh)
                     training_data_prediction_errors.append(training_data_prediction_error)
 
-                    testing_data_prediction_error = get_prediction_error(perceptron, testing_set[0], testing_set[1], mean_error, descale_fun = scale_functions.descale_tanh)
+                    testing_data_prediction_error = get_prediction_error_for_perceptron(perceptron, testing_set[0], testing_set[1], mean_error, descale_fun = scale_functions.descale_tanh)
                     testing_data_prediction_errors.append(testing_data_prediction_error)
 
                 training_mean_error = np.mean(training_errors)
@@ -149,10 +149,10 @@ if __name__ == '__main__':
                     breaking_epoch, training_error = perceptron.train(training_set[0], training_set[1], learning_rate, epoch_amount, gradient_descent_optimizer, mean_error, 0.1, second_exercise_training_results_file, "tanh_non_linear", True, beta, partition_index+1)
                     training_errors.append(training_error)
 
-                    training_data_prediction_error = get_prediction_error(perceptron, training_set[0], training_set[1], mean_error, descale_fun = scale_functions.descale_tanh)
+                    training_data_prediction_error = get_prediction_error_for_perceptron(perceptron, training_set[0], training_set[1], mean_error, descale_fun = scale_functions.descale_tanh)
                     training_data_prediction_errors.append(training_data_prediction_error)
 
-                    testing_data_prediction_error = get_prediction_error(perceptron, testing_set[0], testing_set[1], mean_error, descale_fun = scale_functions.descale_tanh)
+                    testing_data_prediction_error = get_prediction_error_for_perceptron(perceptron, testing_set[0], testing_set[1], mean_error, descale_fun = scale_functions.descale_tanh)
                     testing_data_prediction_errors.append(testing_data_prediction_error)
 
                 training_mean_error = np.mean(training_errors)
@@ -177,10 +177,10 @@ if __name__ == '__main__':
                     breaking_epoch, training_error = perceptron.train(training_set[0], training_set[1], learning_rate, epoch_amount, gradient_descent_optimizer,mean_error, 0.1, second_exercise_training_results_file, "logistic", True, beta, partition_index+1)
                     training_errors.append(training_error)
 
-                    training_data_prediction_error = get_prediction_error(perceptron, training_set[0], training_set[1], mean_error, descale_fun = scale_functions.descale_logistic)
+                    training_data_prediction_error = get_prediction_error_for_perceptron(perceptron, training_set[0], training_set[1], mean_error, descale_fun = scale_functions.descale_logistic)
                     training_data_prediction_errors.append(training_data_prediction_error)
 
-                    testing_data_prediction_error = get_prediction_error(perceptron, testing_set[0], testing_set[1], mean_error, descale_fun = scale_functions.descale_logistic)
+                    testing_data_prediction_error = get_prediction_error_for_perceptron(perceptron, testing_set[0], testing_set[1], mean_error, descale_fun = scale_functions.descale_logistic)
                     testing_data_prediction_errors.append(testing_data_prediction_error)
 
                 training_mean_error = np.mean(training_errors)
