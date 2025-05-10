@@ -24,8 +24,11 @@ def logistic(x:float, beta:float)->float:
 def prime_logistic(x:float, beta:float)->float:
     return 2 * beta * logistic(x, beta) * (1 - logistic(x, beta))
 
-def relu(x, beta=1.0):
-    return max(0, x)
+def relu(x, beta:float=1.0):
+    return np.maximum(0, x)
 
-def relu_derivative(x, beta=1.0):
-    return 1 if x > 0 else 0
+def relu_derivative(x, beta:float=1.0):
+    result = np.zeros_like(x, dtype=float)
+    result[x > 0] = 1.0
+    
+    return result

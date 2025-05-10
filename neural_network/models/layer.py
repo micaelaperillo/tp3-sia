@@ -11,8 +11,8 @@ class Layer:
         # wi0 is for bias
         # now each weight has a shape of 0
         self.weights_matrix = np.random.rand(num_neurons, num_previous_layer_neurons + 1) * 0.1
-        self.a_j_values = np.array([])
-        self.h_j_values = np.array([])
+        self.a_j_values = None
+        self.h_j_values = None
         self.neurons: list[MultiLayerPerceptron] = []
         for i in range(num_neurons):
             perceptron = MultiLayerPerceptron(num_inputs, activation_function)

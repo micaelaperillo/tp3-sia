@@ -1,6 +1,6 @@
 from typing import List 
 import numpy as np
-from sklearn.model_selection import StratifiedKFold
+from collections import defaultdict
 
 def initial_partition_by_testing_percentage(testing_percentage:float, x_values:List[float], y_values:List[float]):
     testing_partition_len = np.ceil(len(x_values) * testing_percentage)
@@ -65,3 +65,39 @@ def stratified_k_cross_validation(k: int, x_values: List[float], y_values: List[
         results.append(configuration)
 
     return results
+
+class StratifiedKFold:
+    def __init__(self, n_splits=5, shuffle=False, random_state=None):
+        self.n_splits = n_splits
+        self.shuffle = shuffle
+        self.random_state = random_state
+        np.random.seed(random_state)
+
+    def split(self, x_array, y_array):
+
+        # Handle splits
+        if self.shuffle:
+            indices = np.arange(len(x_array))
+            np.random.shuffle(indices)
+            x_array = x_array[indices]
+            y_array = y_array[indices]
+        else:
+            indices = np.arange(len(x_array))
+
+        # Group by class
+        class_indices = defaultdict(list)
+        for idx, label in zip(indices, y_array):
+            class_indices[label].append(idx)
+
+        folds = [[] for _ in range(self.n_splits)]
+        for cls, cls_indices in class_indices.items():
+            if self.shuffle:
+                np.random.shuffle(cls_indices)
+            cls_folds = np.array_split(cls_indices, self.n_splits)
+            for i in range(self.n_splits):
+                folds[i].extend(cls_folds[i])
+
+        for i in range(self.n_splits):
+            val_idx = np.array(folds[i])
+            train_idx = np.array([idx for j, fold in enumerate(folds) if j != i for idx in fold])
+            yield train_idx, val_idx
