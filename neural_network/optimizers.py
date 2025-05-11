@@ -14,19 +14,17 @@ def gradient_descent_optimizer_with_delta(learning_rate:float, delta:float, inpu
     return learning_rate * delta * input_data
 
 def momentum_gradient_descent_optimizer_with_delta(learning_rate:float, delta:float, input_data:float, alpha:float):
-    gradient_descent = gradient_descent_optimizer_with_delta(learning_rate, delta, input_data)/learning_rate 
+    gradient_descent = delta * input_data
     return learning_rate * gradient_descent + alpha * gradient_descent
 
-def adam_optimizer_with_delta(learning_rate:float, delta:List[float], input_data:List[float], alpha: float, beta1: float, beta2: float, epsilon: float, epoch:int) -> List[float]:
-    m = 0
-    v = 0
-    t = epoch
-    g = gradient_descent_optimizer_with_delta(learning_rate, delta, input_data, alpha)
+def adam_optimizer_with_delta(learning_rate:float, delta:List[float], input_data:List[float], alpha: float, beta1: float, beta2: float, epsilon: float, m_k:float, v_k:float, epoch:int) -> List[float]:
+    t = epoch + 1
+    g = delta * input_data
 
-    m = beta1 * m + (1 - beta1) * g
-    v = beta2 * v + (1 - beta2) * (g ** 2)
+    m = beta1 * m_k + (1 - beta1) * g
+    v = beta2 * v_k + (1 - beta2) * (g ** 2)
 
     m_hat = m / (1 - beta1 ** t)
     v_hat = v / (1 - beta2 ** t)
 
-    return alpha * m_hat / (np.sqrt(v_hat) + epsilon)
+    return (alpha / (np.sqrt(v_hat) + epsilon)) * m_hat, m, v
