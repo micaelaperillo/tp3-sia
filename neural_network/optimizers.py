@@ -17,7 +17,7 @@ def momentum_gradient_descent_optimizer_with_delta(learning_rate:float, delta:fl
     gradient_descent = delta * input_data
     return learning_rate * gradient_descent + alpha * gradient_descent
 
-def adam_optimizer_with_delta(learning_rate:float, delta:List[float], input_data:List[float], alpha: float, beta1: float, beta2: float, epsilon: float, m_k:float, v_k:float, epoch:int) -> List[float]:
+def adam_optimizer_with_delta(delta:List[float], input_data:List[float], alpha: float, beta1: float, beta2: float, epsilon: float, m_k:float, v_k:float, epoch:int) -> List[float]:
     t = epoch + 1
     g = delta * input_data
 
