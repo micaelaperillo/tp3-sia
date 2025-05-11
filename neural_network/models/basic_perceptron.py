@@ -39,7 +39,7 @@ class Perceptron:
             errors = []
             for x_value, expected_value in zip(training_set, labels):
                 x_value = np.insert(x_value, 0, 1)
-                prediction, h_supra_mu = self.predict(x_value)
+                prediction, h_supra_mu = self.predict(x_value,beta)
                 if descale_fun is not None:
                     prediction = descale_fun(prediction)
                     expected_value = descale_fun(expected_value)
