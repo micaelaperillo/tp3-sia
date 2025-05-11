@@ -40,7 +40,13 @@ if __name__ == '__main__':
         "mean_error": mean_error
     }
 
+    def write_header_if_needed(file_path, header):
+        if not os.path.exists(file_path) or os.stat(file_path).st_size == 0:
+            with open(file_path, "w", newline='') as file:
+                file.write(header)
+
     seed:int = 43
+
 
     # Discriminacion de paridad:
     # impar: [0.0, 1.0], par: [1.0, 0.0]
@@ -62,10 +68,13 @@ if __name__ == '__main__':
     training_data_prediction_errors = []
     testing_data_prediction_errors = []
 
-    parity_results_file = open(os.path.join(results_data_dir_name, results_files[0]), "w", newline='')
-    parity_results_file.write(f"seed,activation_function,optimizer,partition,neurons_per_layer,beta,learning_rate,alpha,total_epochs,epoch,error_function,error\n")
-    errors_parity_results_file = open(os.path.join(results_data_dir_name, errors_results_files[0]), "w", newline='')
-    errors_parity_results_file.write(f"seed,activation_function,optimizer,partition,neurons_per_layer,beta,learning_rate,alpha,total_epochs,training_mean_error,training_std_error,testing_mean_error,testing_std_error\n")
+    parity_path = os.path.join(results_data_dir_name, results_files[0])
+    errors_parity_path = os.path.join(results_data_dir_name, errors_results_files[0])
+
+    write_header_if_needed(parity_path, f"seed,activation_function,optimizer,partition,neurons_per_layer,beta,learning_rate,alpha,total_epochs,epoch,error_function,error\n")
+    write_header_if_needed(errors_parity_path, f"seed,activation_function,optimizer,partitions,neurons_per_layer,beta,learning_rate,alpha,total_epochs,error_function,training_mean_error,training_std_error,testing_mean_error,testing_std_error\n")
+    parity_results_file = open(parity_path, "a", newline='')
+    errors_parity_results_file = open(errors_parity_path, "a", newline='')
 
     optimizer = gradient_descent_optimizer_with_delta
     max_error = 1.0
