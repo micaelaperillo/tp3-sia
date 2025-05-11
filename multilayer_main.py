@@ -1,6 +1,6 @@
 import os
 import numpy as np
-import os       
+import json
 from typing import List
 from neural_network.models.neural_network import NeuralNetwork
 from neural_network.activation_functions import relu, logistic, prime_logistic, relu_derivative
@@ -26,22 +26,36 @@ if __name__ == '__main__':
         flat_list = [int(x) for row in block for x in row.split()]
         digits_vectors.append(flat_list)
 
+    with open("config.json") as f:
+        config = json.load(f)
+
+    activation_functions_map = {
+        "relu": (relu, relu_derivative),
+        "logistic": (logistic, prime_logistic)
+    }
+
+    error_functions_map = {
+        "squared_error": squared_error,
+        "mean_error": mean_error
+    }
+
     seed:int = 43
 
     # Discriminacion de paridad:
     # impar: [0.0, 1.0], par: [1.0, 0.0]
     x_values = np.array(digits_vectors)
     y_values = np.array([[1.0, 0.0], [0.0, 1.0],[1.0, 0.0], [0.0, 1.0], [1.0, 0.0], [0.0, 1.0], [1.0, 0.0], [0.0, 1.0], [1.0, 0.0], [0.0, 1.0]])
+
     k = 5
     training_testing_pairs = k_cross_validation(k, x_values, y_values)
 
-    network_configurations = [[35, 16, 2]]
-    activation_functions = [(relu, relu_derivative)] 
-    optimizers = [gradient_descent_optimizer_with_delta, momentum_gradient_descent_optimizer_with_delta, adam_optimizer_with_delta]
-    error_functions = [squared_error, mean_error]
-    epochs = [200, 500, 1000]
-    learning_rates = [0.0001, 0.00005, 0.00001]
-    alpha_values = [0.8, 0.85, 0.9]
+    parity_config = config['parity']
+    network_configurations = parity_config['network_configurations']
+    activation_functions = [activation_functions_map[name] for name in parity_config['activation_functions']]
+    error_functions = [error_functions_map[name] for name in parity_config['error_functions']]
+    epochs = parity_config['epochs']
+    learning_rates = parity_config['learning_rates']
+    alpha_values = parity_config['alpha_values']
 
     training_errors = []
     training_data_prediction_errors = []
@@ -75,8 +89,7 @@ if __name__ == '__main__':
                             training_error_std = np.std(training_errors)                            
                             testing_data_mean_prediction_error = np.mean(testing_data_prediction_errors)
                             testing_data_prediction_error_std = np.std(testing_data_prediction_errors)
-                            print(f"training_mean_error:{training_mean_error} +- {training_error_std}, testing_mean_error: {testing_data_mean_prediction_error} +- {testing_data_prediction_error_std}")
-                            parity_results_file.write(f"{seed}, relu,{str(network_configuration)},{1.0},{learning_rate},{total_epochs},mean_error,{training_mean_error}\n")
+                            
 
     optimizer = momentum_gradient_descent_optimizer_with_delta
     max_error = 1.0
