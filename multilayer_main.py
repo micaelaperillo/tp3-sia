@@ -48,6 +48,33 @@ if __name__ == '__main__':
     seed:int = 43
 
 
+    # Discriminar xor 
+    xor_x_values:List[List[int]] = np.array([[0, 1], [1, 0], [0, 0], [1, 1]])
+    xor_y_values:List[int] = np.array([[1,0], [1,0], [0,1], [0,1]])
+    xor_config = config['xor']
+    network_configurations = xor_config['network_configurations']
+    activation_functions = [activation_functions_map[name] for name in xor_config['activation_functions']]
+    error_functions = [error_functions_map[name] for name in xor_config['error_functions']]
+    epochs = xor_config['epochs']
+    learning_rates = xor_config['learning_rates']
+
+    optimizer = gradient_descent_optimizer_with_delta
+    max_error = 0.01
+
+    xor_path = os.path.join(results_data_dir_name, "ej3_xor_data.csv")
+    write_header_if_needed(xor_path, f"seed,activation_function,optimizer,partition,neurons_per_layer,beta,learning_rate,alpha,total_epochs,epoch,error_function,error\n")
+    xor_results_file = open(xor_path, "a", newline='')
+
+    for network_configuration in network_configurations:
+        neurons_per_layer_str = f"[{'-'.join(map(str, network_configuration))}]"
+        for activation_function in activation_functions:
+                for error_function in error_functions:
+                    for learning_rate in learning_rates:
+                        for total_epochs in epochs:
+                            neural_network = NeuralNetwork(xor_x_values, xor_y_values, network_configurations[0], activation_function[0], activation_function[1], seed)
+                            breaking_epoch, training_error = neural_network.backpropagate(xor_x_values, xor_y_values, learning_rate, total_epochs, optimizer, error_functions[0], max_error, xor_results_file, False, 0, neurons_per_layer_str, activation_function[0].__name__,1)
+                            print(f"breaking_epoch: {breaking_epoch} training_error: {training_error}")
+
     # Discriminacion de paridad:
     # impar: [0.0, 1.0], par: [1.0, 0.0]
     x_values = np.array(digits_vectors)
