@@ -175,7 +175,7 @@ if __name__ == '__main__':
                     training_set = configuration[0]
                     testing_set = configuration[1]
                     perceptron = Perceptron(len(x_values[0]), logistic, prime_logistic)
-                    breaking_epoch, training_error = perceptron.train(training_set[0], training_set[1], learning_rate, epoch_amount, gradient_descent_optimizer,mean_error, 0.1, second_exercise_training_results_file, "logistic", True, beta, partition_index+1)
+                    breaking_epoch, training_error = perceptron.train(training_set[0], training_set[1], learning_rate, epoch_amount, gradient_descent_optimizer,mean_error, 0.1, second_exercise_training_results_file, "logistic", True, beta, partition_index+1,descale_fun=scale_functions.descale_logistic)
                     training_errors.append(training_error)
 
                     training_data_prediction_error = get_prediction_error_for_perceptron(perceptron, training_set[0], training_set[1], mean_error, descale_fun = scale_functions.descale_logistic)
