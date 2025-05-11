@@ -23,8 +23,8 @@ class NeuralNetwork:
             a_j_vector = layer.forward(a_j_vector, beta)
         return a_j_vector
     
-    def backpropagate(self, input_values:List[List[int]], y_values:List[List[int]], learning_rate:float, epochs:int, optimizer:OptimizerFunctionType, error_function:ErrorFunctionType, max_acceptable_error:float, file, method:str, is_adam_optimizer=False, partition:int=0,activation_beta:float= 1.0, alpha:float= 0.0):
-        file.write(f"{self.seed},{partition},{method},{activation_beta},{learning_rate},{epochs},{0},{0.0}\n")
+    def backpropagate(self, input_values:List[List[int]], y_values:List[List[int]], learning_rate:float, epochs:int, optimizer:OptimizerFunctionType, error_function:ErrorFunctionType, max_acceptable_error:float, file, is_adam_optimizer=False, partition:int=0, neurons_per_layer = [], activation_function= "", activation_beta:float= 1.0, alpha:float= 0.0):
+        file.write(f"{self.seed},{activation_function},{optimizer.__name__},{partition},{neurons_per_layer},{activation_beta},{learning_rate},{alpha},{epochs},{0},{error_function.__name__},{0.0}\n")
         m_k_matrixes = []
         v_k_matrixes = []
         for epoch in range(epochs):
@@ -88,7 +88,7 @@ class NeuralNetwork:
                 errors.append(basic_error)
             
             network_error = error_function(np.array(errors))
-            file.write(f"{self.seed},{partition},{method},{activation_beta},{learning_rate},{epochs},{epoch+1},{network_error}\n")
+            file.write(f"{self.seed},{activation_function},{optimizer.__name__},{partition},{neurons_per_layer},{activation_beta},{learning_rate},{alpha},{epochs},{epoch+1},{error_function.__name__},{network_error}\n")
 
             if network_error < max_acceptable_error:
                 return epoch+1, network_error
