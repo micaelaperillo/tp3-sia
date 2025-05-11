@@ -2,15 +2,15 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 
-def plot_parity_epochs_evolution():
+def plot_parity_epochs_evolution(learning_rate=1e-5, total_epochs=1000):
 
     df = pd.read_csv("output_data/ej3_parity_data.csv")
 
     df_filtered = df[
         (df['activation_function'] == 'relu') & 
         (df['optimizer'] == 'gradient_descent_optimizer_with_delta') & 
-        (df['total_epochs'] == 1000) & 
-        (df['learning_rate'] == 1e-05)
+        (df['total_epochs'] == total_epochs) & 
+        (df['learning_rate'] == learning_rate)
     ]
 
     plt.figure(figsize=(10, 6))
@@ -18,7 +18,7 @@ def plot_parity_epochs_evolution():
     for partition in df_filtered['partition'].unique():
         partition_data = df_filtered[df_filtered['partition'] == partition]
         partition_data = partition_data[
-            (partition_data['epoch'] > 5) & (partition_data['epoch'] != 1000)
+            (partition_data['epoch'] > 1)
         ]
 
         plt.plot(partition_data['epoch'], partition_data['error'], label=f'Partition {partition}')
