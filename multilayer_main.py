@@ -79,8 +79,10 @@ if __name__ == '__main__':
                             for partition_index, configuration in enumerate(training_testing_pairs):
                                 training_set = configuration[0]
                                 testing_set = configuration[1]
+
+                                neurons_per_layer_str = f"[{'-'.join(map(str, network_configuration))}]"
                                 neural_network = NeuralNetwork(training_set[0], training_set[1], network_configuration, activation_function[0], activation_function[1], seed)
-                                breaking_epoch, training_error = neural_network.backpropagate(digits_vectors, y_values, learning_rate, total_epochs, optimizer, error_function, max_error, parity_results_file, is_adam_optimizer= False, partitions= partition_index, neurons_per_layer= network_configuration, activation_function= activation_function)
+                                breaking_epoch, training_error = neural_network.backpropagate(digits_vectors, y_values, learning_rate, total_epochs, optimizer, error_function, max_error, parity_results_file, is_adam_optimizer= False, partition= partition_index, neurons_per_layer= neurons_per_layer_str, activation_function= activation_function[0].__name__)
                                 training_errors.append(training_error)
 
                                 testing_data_prediction_error = get_prediction_error_for_neural_network(neural_network, testing_set[0], testing_set[1], mean_error)
@@ -90,7 +92,8 @@ if __name__ == '__main__':
                             training_error_std = np.std(training_errors)                            
                             testing_data_mean_prediction_error = np.mean(testing_data_prediction_errors)
                             testing_data_prediction_error_std = np.std(testing_data_prediction_errors)    
-                            errors_parity_results_file.write(f"{seed},{activation_function.__name__},{optimizer.__name__},{partition_index},{network_configuration},{1.0},{learning_rate},{0.0},{total_epochs},{training_mean_error},{training_error_std},{testing_data_mean_prediction_error},{testing_data_prediction_error_std}\n")
+                            errors_parity_results_file.write(f"{seed},{activation_function[0].__name__},{optimizer.__name__},{partition_index},{neurons_per_layer_str},{1.0},{learning_rate},{0.0},{total_epochs},{training_mean_error},{training_error_std},{testing_data_mean_prediction_error},{testing_data_prediction_error_std}\n")
+
                             
 
     optimizer = momentum_gradient_descent_optimizer_with_delta
@@ -107,8 +110,9 @@ if __name__ == '__main__':
                                     training_set = configuration[0]
                                     testing_set = configuration[1]
 
+                                    neurons_per_layer_str = f"[{'-'.join(map(str, network_configuration))}]"
                                     neural_network = NeuralNetwork(training_set[0], training_set[1], network_configuration, activation_function[0], activation_function[1], seed)
-                                    breaking_epoch, training_error = neural_network.backpropagate(digits_vectors, y_values, learning_rate, total_epochs, optimizer, error_function, max_error, parity_results_file, is_adam_optimizer= False, partitions= partition_index, neurons_per_layer= network_configuration, activation_function= activation_function, activation_beta= 1.0, alpha= alpha)
+                                    breaking_epoch, training_error = neural_network.backpropagate(digits_vectors, y_values, learning_rate, total_epochs, optimizer, error_function, max_error, parity_results_file, is_adam_optimizer= False, partition= partition_index, neurons_per_layer= neurons_per_layer_str, activation_function= activation_function[0].__name__, activation_beta= 1.0, alpha= alpha)
                                     
                                     testing_data_prediction_error = get_prediction_error_for_neural_network(neural_network, testing_set[0], testing_set[1], mean_error)
                                     testing_data_prediction_errors.append(testing_data_prediction_error)
@@ -117,7 +121,7 @@ if __name__ == '__main__':
                                 training_error_std = np.std(training_errors)                            
                                 testing_data_mean_prediction_error = np.mean(testing_data_prediction_errors)
                                 testing_data_prediction_error_std = np.std(testing_data_prediction_errors)
-                                errors_parity_results_file.write(f"{seed},{activation_function.__name__},{optimizer.__name__},{partition_index},{network_configuration},{1.0},{learning_rate},{alpha},{total_epochs},{training_mean_error},{training_error_std},{testing_data_mean_prediction_error},{testing_data_prediction_error_std}\n")
+                                errors_parity_results_file.write(f"{seed},{activation_function[0].__name__},{optimizer.__name__},{partition_index},{neurons_per_layer_str},{1.0},{learning_rate},{alpha},{total_epochs},{training_mean_error},{training_error_std},{testing_data_mean_prediction_error},{testing_data_prediction_error_std}\n")
 
     optimizer = adam_optimizer_with_delta
     max_error = 1.0
@@ -132,8 +136,9 @@ if __name__ == '__main__':
                                 training_set = configuration[0]
                                 testing_set = configuration[1]
 
+                                neurons_per_layer_str = f"[{'-'.join(map(str, network_configuration))}]"
                                 neural_network = NeuralNetwork(training_set[0], training_set[1], network_configuration, activation_function[0], activation_function[1], seed)
-                                breaking_epoch, training_error = neural_network.backpropagate(digits_vectors, y_values, learning_rate, total_epochs, optimizer, error_function, max_error, parity_results_file, is_adam_optimizer= False, partitions= partition_index, neurons_per_layer= network_configuration, activation_function= activation_function, activation_beta= 1.0, alpha= alpha)
+                                breaking_epoch, training_error = neural_network.backpropagate(digits_vectors, y_values, learning_rate, total_epochs, optimizer, error_function, max_error, parity_results_file, is_adam_optimizer= False, partition= partition_index, neurons_per_layer= neurons_per_layer_str, activation_function= activation_function[0].__name__, activation_beta= 1.0, alpha= alpha)
 
                                 testing_data_prediction_error = get_prediction_error_for_neural_network(neural_network, testing_set[0], testing_set[1], mean_error)
                                 testing_data_prediction_errors.append(testing_data_prediction_error)
@@ -142,7 +147,7 @@ if __name__ == '__main__':
                             training_error_std = np.std(training_errors)                            
                             testing_data_mean_prediction_error = np.mean(testing_data_prediction_errors)
                             testing_data_prediction_error_std = np.std(testing_data_prediction_errors)
-                            errors_parity_results_file.write(f"{seed},{activation_function.__name__},{optimizer.__name__},{partition_index},{network_configuration},{1.0},{learning_rate},{alpha},{total_epochs},{training_mean_error},{training_error_std},{testing_data_mean_prediction_error},{testing_data_prediction_error_std}\n")
+                            errors_parity_results_file.write(f"{seed},{activation_function[0].__name__},{optimizer.__name__},{partition_index},{neurons_per_layer_str},{1.0},{learning_rate},{alpha},{total_epochs},{training_mean_error},{training_error_std},{testing_data_mean_prediction_error},{testing_data_prediction_error_std}\n")
 
 
 #    # Discriminacion de digito:
