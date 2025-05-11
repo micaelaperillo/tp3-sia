@@ -1,25 +1,23 @@
 import pandas as pd
 import matplotlib.pyplot as plt
-import seaborn as sns
 
-def plot_parity_epochs_evolution(learning_rate=1e-5, total_epochs=1000):
+
+def plot_parity_epochs_evolution_per_partition(activation_function='relu', optimizer='gradient_descent_optimizer_with_delta', learning_rate=1e-5, total_epochs=1000):
 
     df = pd.read_csv("output_data/ej3_parity_data.csv")
 
     df_filtered = df[
-        (df['activation_function'] == 'relu') & 
-        (df['optimizer'] == 'gradient_descent_optimizer_with_delta') & 
+        (df['activation_function'] == activation_function) & 
+        (df['optimizer'] == optimizer) & 
         (df['total_epochs'] == total_epochs) & 
-        (df['learning_rate'] == learning_rate)
+        (df['learning_rate'] == learning_rate) &
+        (df['epoch'] > 1)
     ]
 
     plt.figure(figsize=(10, 6))
 
     for partition in df_filtered['partition'].unique():
         partition_data = df_filtered[df_filtered['partition'] == partition]
-        partition_data = partition_data[
-            (partition_data['epoch'] > 1)
-        ]
 
         plt.plot(partition_data['epoch'], partition_data['error'], label=f'Partition {partition}')
 
@@ -31,14 +29,47 @@ def plot_parity_epochs_evolution(learning_rate=1e-5, total_epochs=1000):
     plt.show()
 
 
+def plot_parity_epochs_evolution(activation_function='relu', optimizer='gradient_descent_optimizer_with_delta', learning_rate=1e-5, total_epochs=1000):
 
-def plot_parity_learning_rates():
+    df = pd.read_csv("output_data/ej3_parity_data.csv")
+
+    df_filtered = df[
+        (df['activation_function'] == activation_function) & 
+        (df['optimizer'] == optimizer) & 
+        (df['total_epochs'] == total_epochs) & 
+        (df['learning_rate'] == learning_rate) &
+        (df['epoch'] > 1)
+    ]
+
+    grouped = df_filtered.groupby("epoch").agg({
+        "error": ["mean", "std"]
+    }).reset_index()
+
+    grouped.columns = ["epoch", "mean_error", "std_error"]
+
+    plt.figure(figsize=(10, 6))
+    plt.plot(grouped["epoch"], grouped["mean_error"], label="Mean Error", color="blue")
+    plt.fill_between(grouped["epoch"],
+                     grouped["mean_error"] - grouped["std_error"],
+                     grouped["mean_error"] + grouped["std_error"],
+                     alpha=0.3, color="blue", label="±1 std")
+
+    plt.title("Evolución promedio del error a lo largo de las épocas")
+    plt.xlabel("Épocas")
+    plt.ylabel("Error")
+    plt.legend()
+    plt.grid(True)
+    plt.tight_layout()
+    plt.show()
+
+
+def plot_parity_learning_rates(activation_function='relu', optimizer='gradient_descent_optimizer_with_delta', total_epochs=1000):
     df = pd.read_csv("output_data/ej3_parity_data_errors.csv")
 
     df = df[
-        (df['activation_function'] == 'relu') &
-        (df['optimizer'] == 'gradient_descent_optimizer_with_delta') &
-        (df['total_epochs'] == 1000) 
+        (df['activation_function'] == activation_function) &
+        (df['optimizer'] == optimizer) &
+        (df['total_epochs'] == total_epochs) 
     ]
 
     grouped = df.groupby("learning_rate").agg({
@@ -72,5 +103,5 @@ def plot_parity_learning_rates():
 
 
 if __name__ == "__main__":
-    plot_parity_epochs_evolution()
-    plot_parity_learning_rates()
+    plot_parity_epochs_evolution(total_epochs=1000, learning_rate=1e-5)
+    #plot_parity_learning_rates()
