@@ -16,6 +16,7 @@ if __name__ == '__main__':
         os.makedirs(results_data_dir_name)
 
     results_files:List[str] = ["ej3_parity_data.csv", "ej3_digits_data.csv"]
+    errors_results_files:List[str] = ["ej3_parity_data_errors.csv", "ej3_digits_data_errors.csv"]
 
     with open("input_data/TP3-ej3-digitos.txt", "r") as file:
         lines = [line.strip() for line in file if line.strip()]
@@ -62,9 +63,9 @@ if __name__ == '__main__':
     testing_data_prediction_errors = []
 
     parity_results_file = open(os.path.join(results_data_dir_name, results_files[0]), "w", newline='')
-    parity_results_file.write(f"seed,activation_function,neurons_per_layer,beta,learning_rate,epochs,error_method,error\n")
-    third_exercise_results_file = open(os.path.join(results_data_dir_name, "ej3_data.csv"), "w", newline='')
-    third_exercise_results_file.write(f"seed,partition,weight_matrixes_per_layers,discriminator,beta,learning_rate,total_epochs,epoch,error\n")
+    parity_results_file.write(f"seed,activation_function,optimizer,partition,neurons_per_layer,beta,learning_rate,alpha,total_epochs,epoch,error_function,error\n")
+    errors_parity_results_file = open(os.path.join(results_data_dir_name, errors_results_files[0]), "w", newline='')
+    errors_parity_results_file.write(f"seed,activation_function,optimizer,partition,neurons_per_layer,beta,learning_rate,alpha,total_epochs,training_mean_error,training_std_error,testing_mean_error,testing_std_error\n")
 
     optimizer = gradient_descent_optimizer_with_delta
     max_error = 1.0
@@ -79,7 +80,7 @@ if __name__ == '__main__':
                                 training_set = configuration[0]
                                 testing_set = configuration[1]
                                 neural_network = NeuralNetwork(training_set[0], training_set[1], network_configuration, activation_function[0], activation_function[1], seed)
-                                breaking_epoch, training_error = neural_network.backpropagate(digits_vectors, y_values, learning_rate, total_epochs, optimizer, error_function, max_error, third_exercise_results_file, "parity", False, partition_index)
+                                breaking_epoch, training_error = neural_network.backpropagate(digits_vectors, y_values, learning_rate, total_epochs, optimizer, error_function, max_error, parity_results_file, is_adam_optimizer= False, partitions= partition_index, neurons_per_layer= network_configuration, activation_function= activation_function)
                                 training_errors.append(training_error)
 
                                 testing_data_prediction_error = get_prediction_error_for_neural_network(neural_network, testing_set[0], testing_set[1], mean_error)
@@ -88,7 +89,8 @@ if __name__ == '__main__':
                             training_mean_error = np.mean(training_errors)
                             training_error_std = np.std(training_errors)                            
                             testing_data_mean_prediction_error = np.mean(testing_data_prediction_errors)
-                            testing_data_prediction_error_std = np.std(testing_data_prediction_errors)
+                            testing_data_prediction_error_std = np.std(testing_data_prediction_errors)    
+                            errors_parity_results_file.write(f"{seed},{activation_function.__name__},{optimizer.__name__},{partition_index},{network_configuration},{1.0},{learning_rate},{0.0},{total_epochs},{training_mean_error},{training_error_std},{testing_data_mean_prediction_error},{testing_data_prediction_error_std}\n")
                             
 
     optimizer = momentum_gradient_descent_optimizer_with_delta
@@ -106,9 +108,8 @@ if __name__ == '__main__':
                                     testing_set = configuration[1]
 
                                     neural_network = NeuralNetwork(training_set[0], training_set[1], network_configuration, activation_function[0], activation_function[1], seed)
-                                    breaking_epoch, training_error = neural_network.backpropagate(digits_vectors, y_values, learning_rate, total_epochs, optimizer, error_function, max_error, third_exercise_results_file, "parity", False, partition_index,1.0, alpha)
+                                    breaking_epoch, training_error = neural_network.backpropagate(digits_vectors, y_values, learning_rate, total_epochs, optimizer, error_function, max_error, parity_results_file, is_adam_optimizer= False, partitions= partition_index, neurons_per_layer= network_configuration, activation_function= activation_function, activation_beta= 1.0, alpha= alpha)
                                     
-
                                     testing_data_prediction_error = get_prediction_error_for_neural_network(neural_network, testing_set[0], testing_set[1], mean_error)
                                     testing_data_prediction_errors.append(testing_data_prediction_error)
 
@@ -116,8 +117,7 @@ if __name__ == '__main__':
                                 training_error_std = np.std(training_errors)                            
                                 testing_data_mean_prediction_error = np.mean(testing_data_prediction_errors)
                                 testing_data_prediction_error_std = np.std(testing_data_prediction_errors)
-                                print(f"training_mean_error:{training_mean_error} +- {training_error_std}, testing_mean_error: {testing_data_mean_prediction_error} +- {testing_data_prediction_error_std}")
-                                parity_results_file.write(f"{seed},relu,{str(network_configuration)},{1.0},{learning_rate},{total_epochs},mean_error,{training_mean_error}\n")
+                                errors_parity_results_file.write(f"{seed},{activation_function.__name__},{optimizer.__name__},{partition_index},{network_configuration},{1.0},{learning_rate},{alpha},{total_epochs},{training_mean_error},{training_error_std},{testing_data_mean_prediction_error},{testing_data_prediction_error_std}\n")
 
     optimizer = adam_optimizer_with_delta
     max_error = 1.0
@@ -133,7 +133,7 @@ if __name__ == '__main__':
                                 testing_set = configuration[1]
 
                                 neural_network = NeuralNetwork(training_set[0], training_set[1], network_configuration, activation_function[0], activation_function[1], seed)
-                                breaking_epoch, training_error = neural_network.backpropagate(digits_vectors, y_values, learning_rate, total_epochs, optimizer, error_function, max_error, third_exercise_results_file, "parity", False, partition_index,1.0, alpha)
+                                breaking_epoch, training_error = neural_network.backpropagate(digits_vectors, y_values, learning_rate, total_epochs, optimizer, error_function, max_error, parity_results_file, is_adam_optimizer= False, partitions= partition_index, neurons_per_layer= network_configuration, activation_function= activation_function, activation_beta= 1.0, alpha= alpha)
 
                                 testing_data_prediction_error = get_prediction_error_for_neural_network(neural_network, testing_set[0], testing_set[1], mean_error)
                                 testing_data_prediction_errors.append(testing_data_prediction_error)
@@ -142,8 +142,7 @@ if __name__ == '__main__':
                             training_error_std = np.std(training_errors)                            
                             testing_data_mean_prediction_error = np.mean(testing_data_prediction_errors)
                             testing_data_prediction_error_std = np.std(testing_data_prediction_errors)
-                            print(f"training_mean_error:{training_mean_error} +- {training_error_std}, testing_mean_error: {testing_data_mean_prediction_error} +- {testing_data_prediction_error_std}")
-                            parity_results_file.write(f"{seed},relu,{str(network_configuration)},{1.0},{learning_rate},{total_epochs},mean_error,{training_mean_error}\n")
+                            errors_parity_results_file.write(f"{seed},{activation_function.__name__},{optimizer.__name__},{partition_index},{network_configuration},{1.0},{learning_rate},{alpha},{total_epochs},{training_mean_error},{training_error_std},{testing_data_mean_prediction_error},{testing_data_prediction_error_std}\n")
 
 
 #    # Discriminacion de digito:
