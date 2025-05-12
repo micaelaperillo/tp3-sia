@@ -67,8 +67,8 @@ if __name__ == '__main__':
     training_testing_pairs_logistic = k_cross_validation(k, x_values_scaled_logistic, y_values_scaled_logistic)
     training_testing_pairs_tanh = k_cross_validation(k, x_values_scaled_tanh, y_values_scaled_tanh)
     seed:int = 43
-    learning_rates:List[float] = [1,0.5,0.01,0.0001, 0.00005, 0.00001, 0.000001]
-    epochs:List[int] = [1000]
+    learning_rates:List[float] = [1,0.5,0.01,0.001,0.0001, 0.00005, 0.00001, 0.000001]
+    epochs:List[int] = [5000]
 
     second_exercise_training_results_file = open(os.path.join(results_data_dir_name, results_files[1]), "w", newline='')
     second_exercise_training_results_file.write(f"seed,partition,weights,activation_function,beta,learning_rate,total_epochs,epoch,error\n")
