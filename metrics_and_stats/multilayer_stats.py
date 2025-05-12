@@ -30,9 +30,9 @@ def plot_parity_epochs_evolution_per_partition(activation_function='relu', optim
     plt.show()
 
 
-def plot_parity_epochs_evolution(activation_function='relu', optimizer='gradient_descent_optimizer_with_delta', learning_rate=1e-5, total_epochs=1000, error_function='mean_error', beta=1.0):
+def plot_parity_epochs_evolution(ej_type= 'parity', activation_function='relu', optimizer='gradient_descent_optimizer_with_delta', learning_rate=1e-5, total_epochs=1000, error_function='mean_error', beta=1.0):
 
-    df = pd.read_csv("output_data/ej3_parity_data.csv")
+    df = pd.read_csv(f"output_data/ej3_{ej_type}_data.csv")
 
     df_filtered = df[
         (df['activation_function'] == activation_function) & 
@@ -142,9 +142,10 @@ def plot_parity_learning_rates(activation_function='relu', optimizer='gradient_d
     plt.show()
 
 
-
-def plot_accuracy():
+def plot_accuracy(ej_type = 'parity'):
     df = pd.read_csv("output_data/ej3_accuracy.csv")
+
+    df = df[(df['ej'] == ej_type) ]
 
     grouped = df.groupby("partitions").agg(
         train_acc_mean=('training_accuracy', 'mean'),
@@ -178,10 +179,9 @@ def plot_accuracy():
     plt.show()
 
 
-
 if __name__ == "__main__":
-    #plot_parity_epochs_evolution(total_epochs=1000, learning_rate=0.01, activation_function='tanh', error_function='mean_error', beta=1.0)
+    plot_parity_epochs_evolution(ej_type= 'digits', total_epochs=200, learning_rate=0.001, activation_function='tanh', error_function='mean_error', beta=1.0)
     #plot_parity_learning_rates()
     #plot_parity_epochs_evolution_per_partition()
-    plot_accuracy()
+    #plot_accuracy()
     #plot_parity_epochs_comparing_optimizers(activation_function='relu', learning_rate=1e-5, total_epochs=1000, error_function='mean_error', beta=1.0)
