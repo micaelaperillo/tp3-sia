@@ -1,8 +1,8 @@
 import pandas as pd
 import matplotlib.pyplot as plt
+import numpy as np
 
-
-def plot_parity_epochs_evolution_per_partition(activation_function='relu', optimizer='gradient_descent_optimizer_with_delta', learning_rate=1e-5, total_epochs=1000):
+def plot_parity_epochs_evolution_per_partition(activation_function='relu', optimizer='gradient_descent_optimizer_with_delta', learning_rate=5e-5, total_epochs=10000, error_function='squared_error'):
 
     df = pd.read_csv("output_data/ej3_parity_data.csv")
 
@@ -11,6 +11,7 @@ def plot_parity_epochs_evolution_per_partition(activation_function='relu', optim
         (df['optimizer'] == optimizer) & 
         (df['total_epochs'] == total_epochs) & 
         (df['learning_rate'] == learning_rate) &
+        (df['error_function'] == error_function) &
         (df['epoch'] > 1)
     ]
 
@@ -29,7 +30,7 @@ def plot_parity_epochs_evolution_per_partition(activation_function='relu', optim
     plt.show()
 
 
-def plot_parity_epochs_evolution(activation_function='relu', optimizer='gradient_descent_optimizer_with_delta', learning_rate=1e-5, total_epochs=1000):
+def plot_parity_epochs_evolution(activation_function='relu', optimizer='gradient_descent_optimizer_with_delta', learning_rate=1e-5, total_epochs=1000, error_function='mean_error', beta=1.0):
 
     df = pd.read_csv("output_data/ej3_parity_data.csv")
 
@@ -38,6 +39,8 @@ def plot_parity_epochs_evolution(activation_function='relu', optimizer='gradient
         (df['optimizer'] == optimizer) & 
         (df['total_epochs'] == total_epochs) & 
         (df['learning_rate'] == learning_rate) &
+        (df['error_function'] == error_function) &
+        (df['beta'] == beta) &
         (df['epoch'] > 1)
     ]
 
@@ -102,6 +105,47 @@ def plot_parity_learning_rates(activation_function='relu', optimizer='gradient_d
     plt.show()
 
 
+
+def plot_accuracy():
+    df = pd.read_csv("output_data/ej3_accuracy.csv")
+
+    grouped = df.groupby("partitions").agg(
+        train_acc_mean=('training_accuracy', 'mean'),
+        train_acc_std=('training_accuracy', 'std'),
+        test_acc_mean=('testing_accuracy', 'mean'),
+        test_acc_std=('testing_accuracy', 'std')
+    ).reset_index()
+
+    # Limitar las barras de error al rango [0, 1]
+    grouped["train_err_up"] = np.minimum(grouped["train_acc_std"], 1 - grouped["train_acc_mean"])
+    grouped["train_err_down"] = np.minimum(grouped["train_acc_std"], grouped["train_acc_mean"])
+    grouped["test_err_up"] = np.minimum(grouped["test_acc_std"], 1 - grouped["test_acc_mean"])
+    grouped["test_err_down"] = np.minimum(grouped["test_acc_std"], grouped["test_acc_mean"])
+
+    plt.figure(figsize=(10, 6))
+    plt.errorbar(grouped["partitions"], grouped["train_acc_mean"],
+                 yerr=[grouped["train_err_down"], grouped["train_err_up"]],
+                 label="Training Accuracy", fmt='-o', capsize=5)
+    plt.errorbar(grouped["partitions"], grouped["test_acc_mean"],
+                 yerr=[grouped["test_err_down"], grouped["test_err_up"]],
+                 label="Testing Accuracy", fmt='-s', capsize=5)
+
+    plt.xlabel("Número de particiones (k)")
+    plt.ylabel("Accuracy")
+    plt.title("Accuracy con barras de error por k-fold cross-validation")
+    plt.xticks(grouped["partitions"])
+    plt.ylim(0, 1.05)
+    plt.grid(True)
+    plt.legend()
+    plt.tight_layout()
+    plt.show()
+
+
+    
+
+
 if __name__ == "__main__":
-    plot_parity_epochs_evolution(total_epochs=1000, learning_rate=1e-5)
+    #plot_parity_epochs_evolution(total_epochs=1000, learning_rate=0.01, activation_function='tanh', error_function='mean_error', beta=1.0)
     #plot_parity_learning_rates()
+    #plot_parity_epochs_evolution_per_partition()
+    plot_accuracy()
