@@ -123,7 +123,7 @@ if __name__ == '__main__':
             for network_configuration in network_configurations:
                 for activation_function in activation_functions:
                         for error_function in error_functions:
-                            for learning_rate in learning_rate:
+                            for learning_rate in learning_rates:
                                 for total_epochs in epochs:
                                     training_errors = []
                                     testing_data_prediction_errors = []
@@ -153,7 +153,7 @@ if __name__ == '__main__':
             for network_configuration in network_configurations:
                 for activation_function in activation_functions:
                         for error_function in error_functions:
-                            for learning_rate in learning_rate:
+                            for learning_rate in learning_rates:
                                 for total_epochs in epochs:
                                     training_errors = []
                                     testing_data_prediction_errors = []
@@ -177,6 +177,13 @@ if __name__ == '__main__':
                                     testing_data_mean_prediction_error = np.mean(testing_data_prediction_errors)
                                     testing_data_prediction_error_std = np.std(testing_data_prediction_errors)
                                     errors_parity_results_file.write(f"{seed},{activation_function[0].__name__},{optimizer.__name__},{k},{neurons_per_layer_str},{1.0},{learning_rate},{alpha},{total_epochs},{training_mean_error},{training_error_std},{testing_data_mean_prediction_error},{testing_data_prediction_error_std}\n")
+
+
+####################################################### RUN PARITY ##################################################################
+
+    train_and_evaluate_parity_network(gradient_descent_optimizer_with_delta)
+    #train_and_evaluate_parity_network(momentum_gradient_descent_optimizer_with_delta)
+    #train_and_evaluate_parity_network(adam_optimizer_with_delta)
 
 
 
@@ -250,7 +257,7 @@ if __name__ == '__main__':
             for network_configuration in network_configurations:
                 for activation_function in activation_functions:
                         for error_function in error_functions:
-                            for learning_rate in learning_rate:
+                            for learning_rate in learning_rates:
                                 for total_epochs in epochs:
                                     training_errors = []
                                     testing_data_prediction_errors = []
@@ -280,7 +287,7 @@ if __name__ == '__main__':
             for network_configuration in network_configurations:
                 for activation_function in activation_functions:
                         for error_function in error_functions:
-                            for learning_rate in learning_rate:
+                            for learning_rate in learning_rates:
                                 for total_epochs in epochs:
                                     training_errors = []
                                     testing_data_prediction_errors = []
@@ -307,11 +314,7 @@ if __name__ == '__main__':
 
 
 
-# ######################################################### RUN ##################################################################
-
-    #train_and_evaluate_parity_network(gradient_descent_optimizer_with_delta)
-    #train_and_evaluate_parity_network(momentum_gradient_descent_optimizer_with_delta)
-    #train_and_evaluate_parity_network(adam_optimizer_with_delta)
+###################################################### RUN DIGITS ##################################################################
 
     train_and_evaluate_digits_network(gradient_descent_optimizer_with_delta)
     #train_and_evaluate_digits_network(momentum_gradient_descent_optimizer_with_delta)
