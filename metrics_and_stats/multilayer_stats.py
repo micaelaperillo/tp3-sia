@@ -66,6 +66,43 @@ def plot_parity_epochs_evolution(activation_function='relu', optimizer='gradient
     plt.show()
 
 
+def plot_parity_epochs_comparing_optimizers(activation_function='relu', learning_rate=1e-5, total_epochs=1000, error_function='mean_error', beta=1.0):
+
+    df = pd.read_csv("output_data/ej3_parity_data.csv")
+
+    df_filtered = df[
+        (df['activation_function'] == activation_function) & 
+        (df['total_epochs'] == total_epochs) & 
+        (df['learning_rate'] == learning_rate) &
+        (df['error_function'] == error_function) &
+        (df['beta'] == beta) &
+        (df['epoch'] > 1)
+    ]
+
+    grouped = df_filtered.groupby(['optimizer', 'epoch']).agg(
+        mean_error=('error', 'mean'),
+        std_error=('error', 'std')
+    ).reset_index()
+
+    plt.figure(figsize=(12, 7))
+
+    for optimizer in grouped['optimizer'].unique():
+        optimizer_data = grouped[grouped['optimizer'] == optimizer]
+        plt.plot(optimizer_data['epoch'], optimizer_data['mean_error'], label=f"{optimizer}")
+        plt.fill_between(optimizer_data['epoch'],
+                         optimizer_data['mean_error'] - optimizer_data['std_error'],
+                         optimizer_data['mean_error'] + optimizer_data['std_error'],
+                         alpha=0.2)
+
+    plt.title("Comparación de optimizadores - Evolución del error a lo largo de las épocas")
+    plt.xlabel("Épocas")
+    plt.ylabel("Error")
+    plt.legend(title="Optimizador")
+    plt.grid(True)
+    plt.tight_layout()
+    plt.show()
+
+
 def plot_parity_learning_rates(activation_function='relu', optimizer='gradient_descent_optimizer_with_delta', total_epochs=1000):
     df = pd.read_csv("output_data/ej3_parity_data_errors.csv")
 
@@ -141,11 +178,10 @@ def plot_accuracy():
     plt.show()
 
 
-    
-
 
 if __name__ == "__main__":
     #plot_parity_epochs_evolution(total_epochs=1000, learning_rate=0.01, activation_function='tanh', error_function='mean_error', beta=1.0)
     #plot_parity_learning_rates()
     #plot_parity_epochs_evolution_per_partition()
     plot_accuracy()
+    #plot_parity_epochs_comparing_optimizers(activation_function='relu', learning_rate=1e-5, total_epochs=1000, error_function='mean_error', beta=1.0)
