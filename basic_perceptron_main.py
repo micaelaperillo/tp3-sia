@@ -14,7 +14,7 @@ from datetime import datetime
 
 if __name__ == '__main__':
 
-    time = datetime.now().strftime("%Y-%m-%d-%H:%M:%S")
+    time = datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
 
     results_data_dir_name = "output_data"
     if not os.path.exists(results_data_dir_name):
@@ -45,7 +45,7 @@ if __name__ == '__main__':
             xor_simple_perceptron = Perceptron(len(xor_x_values[0]), step)            
             xor_breaking_epoch, xor_training_error = xor_simple_perceptron.train(xor_x_values, xor_y_values, learning_rate, epoch_amount, rosenblatt_optimizer, squared_error, 1.0, first_exercise_results_file, "xor")
 
-    plots_for_exercise_1(os.path.join(results_data_dir_name, results_files[0]), learning_rates)
+    #plots_for_exercise_1(os.path.join(results_data_dir_name, results_files[0]), learning_rates)
 
     # exercise 2
     input_data_dir_name = "input_data"

@@ -476,7 +476,7 @@ if __name__ == '__main__':
     #results_files:List[str] = ["ej1_data.csv", "ej2_data.csv", "ej3_data.csv", "ej4_data.csv"]
     #plots_for_exercise_1(os.path.join("output_data", results_files[0]))
     
-    plots_for_exercise_2(os.path.join("output_data", "ej2_data.csv"), os.path.join("output_data", "ej2_data_errors.csv"))
+    #plots_for_exercise_2(os.path.join("output_data", "ej2_data.csv"), os.path.join("output_data", "ej2_data_errors.csv"))
     #graph_decision_boundary("and", learning_rate=0.0001, epochs=200)
     #graph_decision_boundary("xor", learning_rate=0.0001, epochs=200)
     #plot_regression_plane("identity", learning_rate=0.0001, epochs=200, beta=1.0, partition=1)
