@@ -33,7 +33,6 @@ class NeuralNetwork:
 
                 basic_error = y_value - prediction
                 
-                #if (basic_error > 0.01).any():
                 reverse_layers = self.layers[::-1]
 
                 output_layer = reverse_layers[0]
@@ -54,33 +53,32 @@ class NeuralNetwork:
                     layer_deltas.insert(0, current_delta)
 
             #batch
-            for layer_index, layer in enumerate(self.layers):
-                delta = layer_deltas[layer_index]
-                if (layer_index == 0):
-                    input_to_layer = input_vector
-                else:
-                    input_to_layer = self.layers[layer_index-1].a_j_values
+                for layer_index, layer in enumerate(self.layers):
+                    delta = layer_deltas[layer_index]
+                    if (layer_index == 0):
+                        input_to_layer = input_vector
+                    else:
+                        input_to_layer = self.layers[layer_index-1].a_j_values
 
-                if is_adam_optimizer:
-                    if (epoch == 0):
-                        m_k_matrix = np.zeros((len(delta), len(input_to_layer)))
-                        m_k_matrixes.append(m_k_matrix)
-                        v_k_matrix = np.zeros((len(delta), len(input_to_layer)))
-                        v_k_matrixes.append(v_k_matrix)
+                    if is_adam_optimizer:
+                        if (epoch == 0):
+                            m_k_matrix = np.zeros((len(delta), len(input_to_layer)))
+                            m_k_matrixes.append(m_k_matrix)
+                            v_k_matrix = np.zeros((len(delta), len(input_to_layer)))
+                            v_k_matrixes.append(v_k_matrix)
 
-                    for j in range(len(delta)):
-                        for i in range(len(input_to_layer)):
-                            delta_w, m_k, v_k = optimizer(learning_rate, delta[j], input_to_layer[i], alpha, 0.9, 0.999, 1e-6, m_k_matrixes[layer_index][j][i], v_k_matrixes[layer_index][j][i],epoch)
-                            layer.weights_matrix[j][i+1] += delta_w 
-                            m_k_matrixes[layer_index][j][i] = m_k
-                            v_k_matrixes[layer_index][j][i] = v_k
-                else:
-                    for j in range(len(delta)):
-                        for i in range(len(input_to_layer)):
-                            delta_w = optimizer(learning_rate, delta[j], input_to_layer[i], alpha)
-                            layer.weights_matrix[j][i+1] += delta_w 
+                        for j in range(len(delta)):
+                            for i in range(len(input_to_layer)):
+                                delta_w, m_k, v_k = optimizer(delta[j], input_to_layer[i], alpha, 0.9, 0.999, 1e-6, m_k_matrixes[layer_index][j][i], v_k_matrixes[layer_index][j][i],epoch)
+                                layer.weights_matrix[j][i+1] += delta_w 
+                                m_k_matrixes[layer_index][j][i] = m_k
+                                v_k_matrixes[layer_index][j][i] = v_k
+                    else:
+                        for j in range(len(delta)):
+                            for i in range(len(input_to_layer)):
+                                delta_w = optimizer(learning_rate, delta[j], input_to_layer[i], alpha)
+                                layer.weights_matrix[j][i+1] += delta_w 
             
-            #error for error
             errors = []
             for input_vector, y_value in zip(input_values, y_values):
                 prediction = self.predict(input_vector)
