@@ -50,3 +50,19 @@ def parity_calculate_accuracy(neural_network: NeuralNetwork, x:List[List[float]]
         elif pred_class == 0 and true_class == 1:
             fn += 1
     return (tp + tn) / (tp + tn + fp + fn)
+
+
+def digits_calculate_accuracy(neural_network: NeuralNetwork, x:List[List[float]], y:List[float], beta:float=1.0):
+    correct = 0
+    total = len(x)
+
+    for x_value, y_value in zip(x, y):
+        pred = neural_network.predict(x_value, beta)
+        pred_class = np.argmax(pred)
+        true_class = np.argmax(y_value)
+
+        if pred_class == true_class:
+            correct += 1
+    
+    accuracy = correct / total
+    return accuracy
