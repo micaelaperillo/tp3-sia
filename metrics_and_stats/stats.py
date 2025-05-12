@@ -22,6 +22,54 @@ def plots_for_exercise_1(results_file:str, learning_rates:List[float]):
         plot_training_error_vs_epoch_for_each_method(df_for_exercise_1, 43, learning_rate, "xor", "Error cuadrático")
 
 
+def plot_train_vs_test_error(df, seed: int, learning_rate: float, method: str,
+                             error_function_name: str, beta: float = 1.0):
+    # Filtrado por parámetros
+    df_filt = df[(df['seed'] == seed) &
+                 (df['learning_rate'] == learning_rate) &
+                 (df['beta'] == beta) &
+                 (df['activation_function'] == method)]
+
+    if df_filt.empty:
+        print(f"[WARN] No hay datos para seed={seed}, eta={learning_rate}, beta={beta}, method={method}")
+        return
+
+    # Agrupado por época
+    df_grouped = df_filt.groupby('epoch').agg(
+        train_mean=('error', 'mean'),
+        test_mean=('test_error', 'mean'),
+        train_std=('error', 'std'),
+        test_std=('test_error', 'std')
+    ).reset_index()
+
+    # Filtrar épocas para las que se quiere mostrar barras de error (cada 1000)
+    df_errorbars = df_grouped[df_grouped['epoch'] % 1000 == 0]
+
+    plt.figure()
+    
+    # Graficar líneas principales
+    plt.plot(df_grouped['epoch'], df_grouped['train_mean'], label='Training Error', color='blue')
+    plt.plot(df_grouped['epoch'], df_grouped['test_mean'], label='Testing Error', color='orange')
+
+    # Agregar barras de error solo cada 1000 épocas
+    plt.errorbar(df_errorbars['epoch'], df_errorbars['train_mean'], yerr=df_errorbars['train_std'],
+                 fmt='o', color='blue', capsize=3)
+    plt.errorbar(df_errorbars['epoch'], df_errorbars['test_mean'], yerr=df_errorbars['test_std'],
+                 fmt='s', color='orange', capsize=3)
+
+    plt.title("Error de entrenamiento vs test (promediado por época)")
+    plt.xlabel("Época")
+    plt.ylabel(error_function_name)
+    plt.grid(True)
+    plt.legend()
+
+    out_dir = os.path.join("graphs", "errors", "train_vs_test")
+    os.makedirs(out_dir, exist_ok=True)
+
+    filename = f"{method}_train_vs_test_s_{seed}_eta_{learning_rate}_beta{beta}_{error_function_name}.png"
+    plt.savefig(os.path.join(out_dir, filename))
+    plt.close()
+
 def plot_training_error_vs_epoch_for_each_method(df, seed: int, learning_rate: float, method: str, error_function_name: str, beta: float = 1.0):
     df_filt = df[(df['seed'] == seed) &
                  (df['learning_rate'] == learning_rate) &
@@ -47,12 +95,13 @@ def plot_training_error_vs_epoch_for_each_method(df, seed: int, learning_rate: f
     plt.grid(True)
     #plt.legend()
 
-    # Agregar etiqueta con el último valor (última fila del DataFrame agrupado)
-    last_row = df_grouped.iloc[-1]
-    label_text = f"Error: {last_row['error_mean']:.4f} ± {last_row['error_std']:.4f}"
-    plt.text(0.98, 0.95, label_text, transform=plt.gca().transAxes,
-             fontsize=9, ha='right', va='top',
-             bbox=dict(boxstyle="round,pad=0.3", fc="white", ec="gray", alpha=0.8))
+    if method not in ("and", "xor"):
+        # Agregar etiqueta con el último valor (última fila del DataFrame agrupado)
+        last_row = df_grouped.iloc[-1]
+        label_text = f"Error: {last_row['error_mean']:.4f} ± {last_row['error_std']:.4f}"
+        plt.text(0.98, 0.95, label_text, transform=plt.gca().transAxes,
+                 fontsize=9, ha='right', va='top',
+                 bbox=dict(boxstyle="round,pad=0.3", fc="white", ec="gray", alpha=0.8))
 
     out_dir = os.path.join("graphs", "errors")
     os.makedirs(out_dir, exist_ok=True)
@@ -154,6 +203,10 @@ def plots_for_exercise_2(results_file:str, error_file:str):
 
     heat_map(df_errors, "tanh")
     heat_map(df_errors, "logistic")
+
+    plot_train_vs_test_error(df_results, 43, 0.01, "tanh", "Error promedio",5)
+    plot_train_vs_test_error(df_results, 43, 0.001, "logistic", "Error promedio",50)
+    plot_train_vs_test_error(df_results, 43, 0.5, "identity", "Error promedio")
 
     for beta in beta_values:
         plot_percepton_errors_by_learning_rate(df_errors, beta, 43, "tanh")
@@ -440,7 +493,7 @@ def animate_regression_plane_3D(activation_function, learning_rate, epochs, beta
 
 
 def general_error_plots_for_exercise_2():
-    df = pd.read_csv("output_data/ej2_data_errors.csv")
+    df = pd.read_csv("output_data/ej2_data_errors-2025-05-12-11-59-47.csv")
 
     filtered_df = df[(df['beta'] == 0.1) & (df['learning_rate'] == 0.0001)]
     grouped = filtered_df.groupby('activation_function').mean(numeric_only=True)
@@ -476,7 +529,7 @@ if __name__ == '__main__':
     #results_files:List[str] = ["ej1_data.csv", "ej2_data.csv", "ej3_data.csv", "ej4_data.csv"]
     #plots_for_exercise_1(os.path.join("output_data", results_files[0]))
     
-    #plots_for_exercise_2(os.path.join("output_data", "ej2_data.csv"), os.path.join("output_data", "ej2_data_errors.csv"))
+    plots_for_exercise_2(os.path.join("output_data", "ej2_data-2025-05-12-11-59-47.csv"), os.path.join("output_data", "ej2_data_errors-2025-05-12-11-59-47.csv"))
     #graph_decision_boundary("and", learning_rate=0.0001, epochs=200)
     #graph_decision_boundary("xor", learning_rate=0.0001, epochs=200)
     #plot_regression_plane("identity", learning_rate=0.0001, epochs=200, beta=1.0, partition=1)
