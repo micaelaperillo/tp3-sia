@@ -5,6 +5,7 @@ matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 from typing import List
 import numpy as np
+import seaborn as sns
 from matplotlib.lines import Line2D
 from mpl_toolkits.mplot3d import Axes3D
 from matplotlib import animation
@@ -58,6 +59,40 @@ def plot_training_error_vs_epoch_for_each_method(df, seed: int, learning_rate: f
 
     filename = f"{method}_error_vs_epochs_s_{seed}_eta_{learning_rate}_beta{beta}_{error_function_name}_std.png"
     plt.savefig(os.path.join(out_dir, filename))
+    plt.close()
+
+
+def heat_map(df, method: str):
+
+    # Elegir función de activación que te interese visualizar
+    activation = method
+
+    # Filtrar por función de activación
+    df_filt = df[df["activation_function"] == activation]
+
+    # Crear pivot table: filas = beta, columnas = learning_rate, valores = training_mean_error
+    heatmap_data = df_filt.pivot_table(
+        index="beta",
+        columns="learning_rate",
+        values="training_mean_error"
+    )
+
+    # Ordenar ejes para que el gráfico quede prolijo
+    heatmap_data = heatmap_data.sort_index().sort_index(axis=1)
+
+    # Graficar heatmap
+    plt.figure(figsize=(10, 6))
+    sns.heatmap(heatmap_data, annot=True, fmt=".2f", cmap="coolwarm", cbar_kws={'label': 'Error Medio'})
+    plt.title(f"HeatMap del error medio para {activation}")
+    plt.xlabel("Tasa de Aprendizaje")
+    plt.ylabel("Beta")
+    plt.tight_layout()
+
+    out_dir = os.path.join("graphs", "errors", "heatmap")
+    os.makedirs(out_dir, exist_ok=True)
+
+    filename = f"{method}_heatmap_error_vs_lr_beta.png"
+    plt.savefig(os.path.join(out_dir, filename), bbox_inches='tight')  # Guardar sin recortar la leyenda
     plt.close()
 
 
@@ -116,6 +151,9 @@ def plots_for_exercise_2(results_file:str, error_file:str):
     plot_linear_perceptron_errors_for_activation_function(df_errors, 43,"logistic")
 
     plot_training_error_curves_by_learning_rate(df_results, 43, "identity", "Error promedio")
+
+    heat_map(df_errors, "tanh")
+    heat_map(df_errors, "logistic")
 
     for beta in beta_values:
         plot_percepton_errors_by_learning_rate(df_errors, beta, 43, "tanh")
