@@ -14,7 +14,7 @@ from datetime import datetime
 
 if __name__ == '__main__':
 
-    time = datetime.now().strftime("%Y-%m-%d-%H:%M:%S")
+    time = datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
 
     results_data_dir_name = "output_data"
     if not os.path.exists(results_data_dir_name):
