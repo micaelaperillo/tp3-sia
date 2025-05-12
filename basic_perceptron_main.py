@@ -10,13 +10,17 @@ from neural_network.partition_methods import k_cross_validation,stratified_k_cro
 from metric_functions import get_prediction_error_for_perceptron
 from neural_network.scale_functions import ScaleFunctions
 from neural_network.optimizers import rosenblatt_optimizer, gradient_descent_optimizer
+from datetime import datetime
 
 if __name__ == '__main__':
+
+    time = datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
+
     results_data_dir_name = "output_data"
     if not os.path.exists(results_data_dir_name):
         os.makedirs(results_data_dir_name)
 
-    results_files:List[str] = ["ej1_data.csv", "ej2_data.csv", "ej3_data.csv", "ej4_data.csv"]
+    results_files:List[str] = [f"ej1_data-{time}.csv", f"ej2_data-{time}.csv", f"ej3_data-{time}.csv", f"ej4_data-{time}.csv"]
 
     # exercise 1
     first_exercise_results_file = open(os.path.join(results_data_dir_name, results_files[0]), "w", newline='')
@@ -41,7 +45,7 @@ if __name__ == '__main__':
             xor_simple_perceptron = Perceptron(len(xor_x_values[0]), step)            
             xor_breaking_epoch, xor_training_error = xor_simple_perceptron.train(xor_x_values, xor_y_values, learning_rate, epoch_amount, rosenblatt_optimizer, squared_error, 1.0, first_exercise_results_file, "xor")
 
-    plots_for_exercise_1(os.path.join(results_data_dir_name, results_files[0]), learning_rates)
+    #plots_for_exercise_1(os.path.join(results_data_dir_name, results_files[0]), learning_rates)
 
     # exercise 2
     input_data_dir_name = "input_data"
@@ -67,8 +71,8 @@ if __name__ == '__main__':
     training_testing_pairs_logistic = k_cross_validation(k, x_values_scaled_logistic, y_values_scaled_logistic)
     training_testing_pairs_tanh = k_cross_validation(k, x_values_scaled_tanh, y_values_scaled_tanh)
     seed:int = 43
-    learning_rates:List[float] = [1,0.5,0.01,0.0001, 0.00005, 0.00001, 0.000001]
-    epochs:List[int] = [1000]
+    learning_rates:List[float] = [1,0.5,0.01,0.001,0.0001, 0.00005, 0.00001, 0.000001]
+    epochs:List[int] = [5000]
 
     second_exercise_training_results_file = open(os.path.join(results_data_dir_name, results_files[1]), "w", newline='')
     second_exercise_training_results_file.write(f"seed,partition,weights,activation_function,beta,learning_rate,total_epochs,epoch,error\n")
