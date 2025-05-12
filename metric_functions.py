@@ -28,3 +28,25 @@ def get_prediction_error_for_neural_network(neural_network:NeuralNetwork, x_valu
         errors.append(basic_error)
 
     return error_function(np.array(errors))
+
+
+def parity_calculate_accuracy(neural_network: NeuralNetwork, x:List[List[float]], y:List[float], beta:float=1.0):
+    tp = tn = fp = fn = 0
+    for x_value, y_value in zip(x, y):
+        pred = neural_network.predict(x_value, beta)
+        if pred[0] > pred[1]:
+            pred_class = 0 # es par
+        else:
+            pred_class = 1 # es impar
+
+        true_class = int(y_value[1])
+
+        if pred_class == 1 and true_class == 1:
+            tp += 1
+        elif pred_class == 0 and true_class == 0:
+            tn += 1
+        elif pred_class == 1 and true_class == 0:
+            fp += 1
+        elif pred_class == 0 and true_class == 1:
+            fn += 1
+    return (tp + tn) / (tp + tn + fp + fn)
