@@ -47,7 +47,6 @@ if __name__ == '__main__':
 
     plots_for_exercise_1(os.path.join(results_data_dir_name, results_files[0]), learning_rates)
 
-"""
     # exercise 2
     input_data_dir_name = "input_data"
     exercise_2_input_data_filename = "TP3-ej2-conjunto.csv"
@@ -196,4 +195,3 @@ if __name__ == '__main__':
                 testing_data_mean_prediction_error = np.mean(testing_data_prediction_errors)
                 testing_data_prediction_error_std = np.std(testing_data_prediction_errors)
                 second_exercise_results_file.write(f"{seed},logistic,{beta},{learning_rate},{breaking_epoch},mean_error,{training_mean_error},{training_error_std},{training_data_mean_prediction_error},{training_data_prediction_error_std},{testing_data_mean_prediction_error},{testing_data_prediction_error_std}\n")
-"""
