@@ -112,7 +112,6 @@ def plot_training_error_vs_epoch_for_each_method(df, seed: int, learning_rate: f
 
 
 def heat_map(df, method: str):
-
     # Elegir función de activación que te interese visualizar
     activation = method
 
@@ -131,7 +130,15 @@ def heat_map(df, method: str):
 
     # Graficar heatmap
     plt.figure(figsize=(10, 6))
-    sns.heatmap(heatmap_data, annot=True, fmt=".2f", cmap="coolwarm", cbar_kws={'label': 'Error Medio'})
+    sns.heatmap(
+        heatmap_data,
+        annot=True,
+        fmt=".2f",
+        cmap="coolwarm",
+        cbar_kws={'label': 'Error Medio'},
+        vmin=0,        
+        vmax=60        
+    )
     plt.title(f"HeatMap del error medio para {activation}")
     plt.xlabel("Tasa de Aprendizaje")
     plt.ylabel("Beta")
@@ -141,7 +148,7 @@ def heat_map(df, method: str):
     os.makedirs(out_dir, exist_ok=True)
 
     filename = f"{method}_heatmap_error_vs_lr_beta.png"
-    plt.savefig(os.path.join(out_dir, filename), bbox_inches='tight')  # Guardar sin recortar la leyenda
+    plt.savefig(os.path.join(out_dir, filename), bbox_inches='tight')
     plt.close()
 
 
