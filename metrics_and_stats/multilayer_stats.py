@@ -1,4 +1,6 @@
 import pandas as pd
+import matplotlib
+matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import numpy as np
 
@@ -76,7 +78,7 @@ def plot_epochs_comparing_optimizers(ej_type='parity', activation_function='relu
         (df['learning_rate'] == learning_rate) &
         (df['error_function'] == error_function) &
         (df['beta'] == beta) &
-        (df['epoch'] > 1)
+        (df['epoch'] > 0)
     ]
 
     grouped = df_filtered.groupby(['optimizer', 'epoch']).agg(
@@ -171,6 +173,42 @@ def plot_error_by_learning_rates_epochs_evolution(ej_type='parity', activation_f
     plt.tight_layout()
     plt.show()
 
+def plot_error_per_epoch_for_optimizers(ej_type='parity', activation_function='logistic', learning_rate=0.01, total_epochs=5000, error_function='squared_error'):
+    df = pd.read_csv(f"output_data/ej3_{ej_type}_data.csv")
+    
+    df_filtered = df[
+        (df['activation_function'] == activation_function) &
+        (df['total_epochs'] == total_epochs) &
+        (df['error_function'] == error_function) &
+        (df['learning_rate'] == learning_rate) &
+        (df['epoch'] > 1)
+    ]
+    
+    plt.figure(figsize=(10, 6))
+    optimizers = df_filtered['optimizer'].unique()
+    
+    colors = ['blue', 'red', 'green']
+    optimizer_labels = {'gradient_descent_optimizer_with_delta': 'Gradiente descendente', 'momentum_gradient_descent_optimizer_with_delta': 'Momentum', 'adam_optimizer_with_delta': 'Adam'}
+    
+    for i, optimizer in enumerate(optimizers):
+        optimizer_data = df_filtered[df_filtered['optimizer'] == optimizer]
+
+        epoch_data = optimizer_data.groupby('epoch')['error'].mean().reset_index()
+        
+        plt.plot(epoch_data['epoch'], epoch_data['error'], 
+                 color=colors[i % len(colors)], 
+                 label=optimizer_labels[optimizer])
+    
+    plt.xlabel("Épocas")
+    plt.ylabel("Error")
+    plt.title(f"Evolución del error para diferentes optimizadores\n"
+              f"(Función de activación: {activation_function}, Learning rate: {learning_rate})")
+    
+    plt.legend(title="Optimizador")
+    plt.grid(True)
+    plt.tight_layout()
+    
+    plt.savefig(f"neural_network_graphs/{ej_type}_errors_per_epoch_for_optimizers.png")
 
 
 def plot_accuracy(ej_type = 'parity'):
@@ -216,4 +254,5 @@ if __name__ == "__main__":
     #plot_parity_epochs_evolution_per_partition()
     #plot_accuracy()
     #plot_parity_epochs_comparing_optimizers(activation_function='relu', learning_rate=1e-5, total_epochs=1000, error_function='mean_error', beta=1.0)
-    plot_error_by_learning_rates_epochs_evolution_per_activation(ej_type='digits', activation_function='logistic')
+    #plot_error_by_learning_rates_epochs_evolution_per_activation(ej_type='digits', activation_function='logistic')
+    plot_error_per_epoch_for_optimizers('parity', 'logistic', 0.01, 5000, 'squared_error')
