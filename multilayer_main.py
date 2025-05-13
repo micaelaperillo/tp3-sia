@@ -52,7 +52,33 @@ if __name__ == '__main__':
     seed:int = 43
 
 
-    ######################################################## PARIDAD ##################################################################
+    # Discriminar xor 
+    xor_x_values:List[List[int]] = np.array([[0, 1], [1, 0], [0, 0], [1, 1]])
+    xor_y_values:List[int] = np.array([[1,0], [1,0], [0,1], [0,1]])
+    xor_config = config['xor']
+    network_configurations = xor_config['network_configurations']
+    activation_functions = [activation_functions_map[name] for name in xor_config['activation_functions']]
+    error_functions = [error_functions_map[name] for name in xor_config['error_functions']]
+    epochs = xor_config['epochs']
+    learning_rates = xor_config['learning_rates']
+
+    optimizer = gradient_descent_optimizer_with_delta
+    max_error = 0.01
+
+    xor_path = os.path.join(results_data_dir_name, "ej3_xor_data.csv")
+    write_header_if_needed(xor_path, f"seed,activation_function,optimizer,partition,neurons_per_layer,beta,learning_rate,alpha,total_epochs,epoch,error_function,error\n")
+    xor_results_file = open(xor_path, "a", newline='')
+
+    def train_xor_network(optimizer):
+        for network_configuration in network_configurations:
+            neurons_per_layer_str = f"[{'-'.join(map(str, network_configuration))}]"
+            for activation_function in activation_functions:
+                    for error_function in error_functions:
+                        for learning_rate in learning_rates:
+                            for total_epochs in epochs:
+                                neural_network = NeuralNetwork(xor_x_values, xor_y_values, network_configurations[0], activation_function[0], activation_function[1], seed)
+                                breaking_epoch, training_error = neural_network.backpropagate(xor_x_values, xor_y_values, learning_rate, total_epochs, optimizer, error_functions[0], max_error, xor_results_file, False, 0, neurons_per_layer_str, activation_function[0].__name__,1)
+                                print(f"breaking_epoch: {breaking_epoch} training_error: {training_error}")
 
     # Discriminacion de paridad:
     # impar: [0.0, 1.0], par: [1.0, 0.0]
@@ -123,7 +149,7 @@ if __name__ == '__main__':
             for network_configuration in network_configurations:
                 for activation_function in activation_functions:
                         for error_function in error_functions:
-                            for learning_rate in learning_rate:
+                            for learning_rate in learning_rates:
                                 for total_epochs in epochs:
                                     training_errors = []
                                     testing_data_prediction_errors = []
@@ -153,7 +179,7 @@ if __name__ == '__main__':
             for network_configuration in network_configurations:
                 for activation_function in activation_functions:
                         for error_function in error_functions:
-                            for learning_rate in learning_rate:
+                            for learning_rate in learning_rates:
                                 for total_epochs in epochs:
                                     training_errors = []
                                     testing_data_prediction_errors = []
@@ -177,6 +203,13 @@ if __name__ == '__main__':
                                     testing_data_mean_prediction_error = np.mean(testing_data_prediction_errors)
                                     testing_data_prediction_error_std = np.std(testing_data_prediction_errors)
                                     errors_parity_results_file.write(f"{seed},{activation_function[0].__name__},{optimizer.__name__},{k},{neurons_per_layer_str},{1.0},{learning_rate},{alpha},{total_epochs},{training_mean_error},{training_error_std},{testing_data_mean_prediction_error},{testing_data_prediction_error_std}\n")
+
+
+####################################################### RUN PARITY ##################################################################
+
+    train_and_evaluate_parity_network(gradient_descent_optimizer_with_delta)
+    #train_and_evaluate_parity_network(momentum_gradient_descent_optimizer_with_delta)
+    #train_and_evaluate_parity_network(adam_optimizer_with_delta)
 
 
 
@@ -250,7 +283,7 @@ if __name__ == '__main__':
             for network_configuration in network_configurations:
                 for activation_function in activation_functions:
                         for error_function in error_functions:
-                            for learning_rate in learning_rate:
+                            for learning_rate in learning_rates:
                                 for total_epochs in epochs:
                                     training_errors = []
                                     testing_data_prediction_errors = []
@@ -280,7 +313,7 @@ if __name__ == '__main__':
             for network_configuration in network_configurations:
                 for activation_function in activation_functions:
                         for error_function in error_functions:
-                            for learning_rate in learning_rate:
+                            for learning_rate in learning_rates:
                                 for total_epochs in epochs:
                                     training_errors = []
                                     testing_data_prediction_errors = []
@@ -290,7 +323,7 @@ if __name__ == '__main__':
 
                                         neurons_per_layer_str = f"[{'-'.join(map(str, network_configuration))}]"
                                         neural_network = NeuralNetwork(training_set[0], training_set[1], network_configuration, activation_function[0], activation_function[1], seed)
-                                        breaking_epoch, training_error = neural_network.backpropagate(digits_vectors, y_values, learning_rate, total_epochs, optimizer, error_function, max_error, parity_results_file, is_adam_optimizer= False, partition= partition_index, neurons_per_layer= neurons_per_layer_str, activation_function= activation_function[0].__name__, activation_beta= 1.0, alpha= alpha)
+                                        breaking_epoch, training_error = neural_network.backpropagate(training_set[0], training_set[1], learning_rate, total_epochs, optimizer, error_function, max_error, parity_results_file, is_adam_optimizer= False, partition= partition_index, neurons_per_layer= neurons_per_layer_str, activation_function= activation_function[0].__name__, activation_beta= 1.0, alpha= alpha)
 
                                         testing_data_prediction_error = get_prediction_error_for_neural_network(neural_network, testing_set[0], testing_set[1], mean_error)
                                         testing_data_prediction_errors.append(testing_data_prediction_error)
@@ -307,11 +340,7 @@ if __name__ == '__main__':
 
 
 
-# ######################################################### RUN ##################################################################
-
-    #train_and_evaluate_parity_network(gradient_descent_optimizer_with_delta)
-    #train_and_evaluate_parity_network(momentum_gradient_descent_optimizer_with_delta)
-    #train_and_evaluate_parity_network(adam_optimizer_with_delta)
+###################################################### RUN DIGITS ##################################################################
 
     train_and_evaluate_digits_network(gradient_descent_optimizer_with_delta)
     #train_and_evaluate_digits_network(momentum_gradient_descent_optimizer_with_delta)

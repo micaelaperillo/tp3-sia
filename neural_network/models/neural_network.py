@@ -24,9 +24,9 @@ class NeuralNetwork:
         return a_j_vector
     
     def backpropagate(self, input_values:List[List[int]], y_values:List[List[int]], learning_rate:float, epochs:int, optimizer:OptimizerFunctionType, error_function:ErrorFunctionType, max_acceptable_error:float, file, is_adam_optimizer=False, partition:int=0, neurons_per_layer = [], activation_function= "", activation_beta:float= 1.0, alpha:float= 0.0):
-        file.write(f"{self.seed},{activation_function},{optimizer.__name__},{partition},{neurons_per_layer},{activation_beta},{learning_rate},{alpha},{epochs},{0},{error_function.__name__},{0.0}\n")
         m_k_matrixes = []
         v_k_matrixes = []
+        prev_delta_w_matrixes = []
         for epoch in range(epochs):
             for input_vector, y_value in zip(input_values, y_values):
                 prediction = self.predict(input_vector)
@@ -60,7 +60,7 @@ class NeuralNetwork:
                     else:
                         input_to_layer = self.layers[layer_index-1].a_j_values
 
-                    if is_adam_optimizer:
+                    if optimizer.__name__ == 'adam_optimizer_with_delta':
                         if (epoch == 0):
                             m_k_matrix = np.zeros((len(delta), len(input_to_layer)))
                             m_k_matrixes.append(m_k_matrix)
@@ -74,10 +74,22 @@ class NeuralNetwork:
                                 m_k_matrixes[layer_index][j][i] = m_k
                                 v_k_matrixes[layer_index][j][i] = v_k
                     else:
-                        for j in range(len(delta)):
-                            for i in range(len(input_to_layer)):
-                                delta_w = optimizer(learning_rate, delta[j], input_to_layer[i], alpha)
-                                layer.weights_matrix[j][i+1] += delta_w 
+                        if optimizer.__name__ == 'momentum_gradient_descent_optimizer_with_delta':
+                            if (epoch == 0):
+                                prev_delta_w_matrix = np.zeros((len(delta), len(input_to_layer)))
+                                prev_delta_w_matrixes.append(prev_delta_w_matrix)
+
+                            for j in range(len(delta)):
+                                for i in range(len(input_to_layer)):
+                                    delta_w = optimizer(learning_rate, delta[j], input_to_layer[i], prev_delta_w_matrixes[layer_index][j][i], alpha)
+                                    layer.weights_matrix[j][i+1] += delta_w 
+                                    prev_delta_w_matrixes[layer_index][j][i] = float(delta_w)
+                            
+                        else:
+                            for j in range(len(delta)):
+                                for i in range(len(input_to_layer)):
+                                    delta_w = optimizer(learning_rate, delta[j], input_to_layer[i], alpha)
+                                    layer.weights_matrix[j][i+1] += delta_w 
             
             errors = []
             for input_vector, y_value in zip(input_values, y_values):
