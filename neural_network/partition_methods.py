@@ -14,6 +14,30 @@ def initial_partition_by_testing_percentage(testing_percentage:float, x_values:L
 
     return np.array([training, testing]) 
 
+def left_one_out(x_values:List[float], y_values:List[float]):
+    results = []
+    n = len(x_values)
+    testing_partition_len = 1
+    for testing_partition_index in range(n):
+        test_start = testing_partition_index 
+        test_end = min(test_start + testing_partition_len, n)  
+        
+        test_indices = np.arange(test_start, test_end)
+        train_indices = np.array([i for i in range(n) if i not in test_indices])
+        
+        test_x = x_values[test_indices]
+        test_y = y_values[test_indices]
+        train_x = x_values[train_indices]
+        train_y = y_values[train_indices]
+        
+        training_set = [train_x, train_y]
+        testing_set = [test_x, test_y]
+        configuration = [training_set, testing_set]
+        
+        results.append(configuration)
+
+    return results
+
 def k_cross_validation(k:int, x_values:List[float], y_values:List[float], seed:int=43):
     # returns an array with all k possible configurations
     # a configuration is defined as:
