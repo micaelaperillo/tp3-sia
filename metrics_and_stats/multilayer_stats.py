@@ -210,6 +210,53 @@ def plot_error_per_epoch_for_optimizers(ej_type='parity', activation_function='l
     
     plt.savefig(f"neural_network_graphs/{ej_type}_errors_per_epoch_for_optimizers.png")
 
+def plot_error_by_activation_function_epochs_evolution(ej_type='parity', optimizer='gradient_descent_optimizer_with_delta', total_epochs=5000, error_function='squared_error', beta=1.0):
+
+    df = pd.read_csv(f"output_data/ej3_{ej_type}_data.csv")
+
+    # Diccionario con learning rates personalizados para cada función de activación
+    # Permite que cada función de activación tenga el learning rate con el que converja mejor
+    learning_rates = {
+        'logistic': 0.1,
+        'tanh': 0.01,
+        'relu': 0.01,
+    }
+
+    dfs = []
+
+    for activation_function, lr in learning_rates.items():
+        subset = df[
+            (df['activation_function'] == activation_function) &
+            (df['optimizer'] == optimizer) &
+            (df['total_epochs'] == total_epochs) &
+            (df['error_function'] == error_function) &
+            (df['beta'] == beta) &
+            (df['learning_rate'] == lr) &
+            (df['epoch'] > 1)
+        ]
+        subset["label"] = f"{activation_function} (tasa={lr:.0e})"
+        dfs.append(subset)
+
+    df_filtered = pd.concat(dfs)
+
+    grouped = df_filtered.groupby(["label", "epoch"]).agg({
+        "error": "mean"
+    }).reset_index()
+
+    plt.figure(figsize=(10, 6))
+
+    for label, group in grouped.groupby("label"):
+        plt.plot(group["epoch"], group["error"], label=label)
+
+    plt.title("Evolución del error por época según función de activación")
+    plt.xlabel("Épocas")
+    plt.ylabel("Error cuadrático")
+    plt.legend(title="Función de activación")
+    plt.grid(True)
+    plt.tight_layout()
+    plt.show()
+
+
 
 def plot_accuracy(ej_type = 'parity'):
     df = pd.read_csv("output_data/ej3_accuracy.csv")
@@ -254,5 +301,5 @@ if __name__ == "__main__":
     #plot_parity_epochs_evolution_per_partition()
     #plot_accuracy()
     #plot_parity_epochs_comparing_optimizers(activation_function='relu', learning_rate=1e-5, total_epochs=1000, error_function='mean_error', beta=1.0)
-    #plot_error_by_learning_rates_epochs_evolution_per_activation(ej_type='digits', activation_function='logistic')
-    plot_error_per_epoch_for_optimizers('parity', 'logistic', 0.01, 5000, 'squared_error')
+    #plot_error_by_learning_rates_epochs_evolution(ej_type='digits', activation_function='tanh')
+    plot_error_by_activation_function_epochs_evolution(ej_type='digits', optimizer='gradient_descent_optimizer_with_delta', total_epochs=5000, error_function='squared_error', beta=1.0)
