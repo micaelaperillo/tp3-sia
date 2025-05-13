@@ -139,34 +139,6 @@ if __name__ == '__main__':
                 testing_data_prediction_error_std = np.std(testing_data_prediction_errors)
                 second_exercise_results_file.write(f"{seed},tanh,{beta},{learning_rate},{breaking_epoch},mean_error,{training_mean_error},{training_error_std},{training_data_mean_prediction_error},{training_data_prediction_error_std},{testing_data_mean_prediction_error},{testing_data_prediction_error_std}\n")
 
-    ##non-linear perceptron
-    #beta_values_for_non_linear = []
-    #for learning_rate in learning_rates:
-    #    for epoch_amount in epochs:
-    #        for beta in beta_values_for_non_linear:
-    #            training_errors = []
-    #            training_data_prediction_errors = []
-    #            testing_data_prediction_errors = []
-    #            for partition_index,configuration in enumerate(training_testing_pairs_tanh):
-    #                training_set = configuration[0]
-    #                testing_set = configuration[1]
-    #                perceptron = Perceptron(len(x_values[0]), tanh, prime_tanh)
-    #                breaking_epoch, training_error = perceptron.train(training_set[0], training_set[1], learning_rate, epoch_amount, gradient_descent_optimizer, mean_error, 0.1, second_exercise_training_results_file, "tanh_non_linear", True, beta, partition_index+1)
-    #                training_errors.append(training_error)
-    #
-    #                training_data_prediction_error = get_prediction_error_for_perceptron(perceptron, training_set[0], training_set[1], mean_error, descale_fun = scale_functions.descale_tanh)
-    #                training_data_prediction_errors.append(training_data_prediction_error)
-    #
-    #                testing_data_prediction_error = get_prediction_error_for_perceptron(perceptron, testing_set[0], testing_set[1], mean_error, descale_fun = scale_functions.descale_tanh)
-    #                testing_data_prediction_errors.append(testing_data_prediction_error)
-    #
-    #            training_mean_error = np.mean(training_errors)
-    #            training_error_std = np.std(training_errors)
-    #            training_data_mean_prediction_error = np.mean(training_data_prediction_errors)
-    #            training_data_prediction_error_std = np.std(training_data_prediction_errors)
-    #            testing_data_mean_prediction_error = np.mean(testing_data_prediction_errors)
-    #            testing_data_prediction_error_std = np.std(testing_data_prediction_errors)
-    #            second_exercise_results_file.write(f"{seed},tanh_non_linear,{beta},{learning_rate},{breaking_epoch},square_error,{training_mean_error},{training_error_std},{training_data_mean_prediction_error},{training_data_prediction_error_std},{testing_data_mean_prediction_error},{testing_data_prediction_error_std}\n")
         
     #for logistic function
     for learning_rate in learning_rates:

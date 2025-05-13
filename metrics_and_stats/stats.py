@@ -80,7 +80,7 @@ def plot_training_error_vs_epoch_for_each_method(df, seed: int, learning_rate: f
     else:
         df_filt = df_filt[df_filt['activation_function'] == method]
 
-    df_filt['epoch_group'] = (df_filt['epoch'] // 100) * 100
+    df_filt['epoch_group'] = (df_filt['epoch'] ) 
     df_grouped = df_filt.groupby('epoch_group').agg(
         error_mean=('error', 'mean'),
         error_std=('error', 'std')
@@ -88,8 +88,8 @@ def plot_training_error_vs_epoch_for_each_method(df, seed: int, learning_rate: f
 
     plt.figure()
     plt.errorbar(df_grouped['epoch_group'], df_grouped['error_mean'],
-                 yerr=df_grouped['error_std'], fmt='-o', capsize=3, label='Error medio')
-    plt.title("Error medio por época")
+                 yerr=df_grouped['error_std'], capsize=3, label='Error medio')
+    plt.title("Error por época")
     plt.xlabel("Época")
     plt.ylabel(error_function_name)
     plt.grid(True)
@@ -369,7 +369,7 @@ def get_test_errors_by_partition(csv_path, k):
     return result
 
 def plot_generalization_vs_partitions():
-    csv_path = "output_data/ej2_data-2025-05-13-07-43-15.csv"
+    csv_path = "output_data/ej2_data-2025-05-13-09-00-33.csv"
 
     # Cargar el CSV evitando problemas de tipo
     df = pd.read_csv(csv_path, low_memory=False)
@@ -421,6 +421,57 @@ def plot_generalization_vs_partitions():
         plt.tight_layout()
         plt.savefig(os.path.join(out_dir, f"generalization_for_best_perceptron_with_k_{k}_avg_and_std.png"))
         plt.close()
+
+
+def plot_generalization_all_ks():
+    csv_path = "output_data/ej2_data-2025-05-13-09-00-33.csv"
+
+    # Cargar el CSV y limpiar
+    df = pd.read_csv(csv_path, low_memory=False)
+    df = df[df["seed"] != "seed"]
+
+    # Conversión de tipos
+    for col in ["seed", "total_partitions", "partition", "total_epochs", "epoch"]:
+        df[col] = pd.to_numeric(df[col], errors="coerce").astype("Int64")
+    for col in ["beta", "learning_rate", "error", "test_error"]:
+        df[col] = pd.to_numeric(df[col], errors="coerce")
+
+    # Parsear pesos si están presentes
+    if "weights" in df.columns:
+        df["weights"] = df["weights"].apply(lambda w: np.fromstring(str(w).strip("[]"), sep=" "))
+
+    ks = sorted(df['total_partitions'].dropna().unique())
+
+    plt.figure(figsize=(14, 8))
+
+    # Obtener lista de colores, uno por k
+    colors = plt.cm.get_cmap("tab10", len(ks))  # tab10 soporta hasta 10 colores bien diferenciados
+
+    for i, k in enumerate(ks):
+        df_k = df[df['total_partitions'] == k]
+        df_mean = df_k.groupby("epoch")[["error", "test_error"]].mean().reset_index()
+
+        color = colors(i)
+
+        # Etiqueta especial para k=1
+        label_prefix = "split" if k == 1 else f"k={k}"
+
+        # Train: línea punteada
+        plt.plot(df_mean["epoch"], df_mean["error"], linestyle="--", label=f"Train ({label_prefix})", color=color, alpha=0.9)
+        # Test: línea sólida
+        plt.plot(df_mean["epoch"], df_mean["test_error"], linestyle="-", label=f"Test ({label_prefix})", color=color, alpha=0.9)
+
+    plt.title("Error promedio por época para distintos conjuntos de entrenamiento (Train vs Test)")
+    plt.xlabel("Épocas")
+    plt.ylabel("Error")
+    plt.grid(True)
+    plt.legend(fontsize="small", ncol=2)
+    plt.tight_layout()
+
+    out_dir = os.path.join("graphs", "errors", "generalization")
+    os.makedirs(out_dir, exist_ok=True)
+    plt.savefig(os.path.join(out_dir, "generalization_comparison_all_k_avg.png"))
+    plt.close()
 
 
 
@@ -685,7 +736,7 @@ if __name__ == '__main__':
     #results_files:List[str] = ["ej1_data.csv", "ej2_data.csv", "ej3_data.csv", "ej4_data.csv"]
     #plots_for_exercise_1(os.path.join("output_data", results_files[0]))
     
-    #plots_for_exercise_2(os.path.join("output_data", "ej2_data-2025-05-13-06-36-13.csv"), os.path.join("output_data", "ej2_data_errors-2025-05-13-06-36-13.csv"))
+    plots_for_exercise_2(os.path.join("output_data", "ej2_data-2025-05-13-06-36-13.csv"), os.path.join("output_data", "ej2_data_errors-2025-05-13-06-36-13.csv"))
     #graph_decision_boundary("and", learning_rate=0.0001, epochs=200)
     #graph_decision_boundary("xor", learning_rate=0.0001, epochs=200)
     #plot_regression_plane("identity", learning_rate=0.0001, epochs=200, beta=1.0, partition=1)
@@ -694,11 +745,11 @@ if __name__ == '__main__':
     #animate_regression_plane_3D("identity", learning_rate=0.0001, epochs=200, beta=1.0, partition=1)
     #general_error_plots_for_exercise_2()
 
-    plot_generalization_vs_partitions()
+    #plot_generalization_vs_partitions()
 
     csv_path = "output_data/ej2_data-2025-05-13-07-43-15.csv"
     
-    for k in [2, 3, 15, 5, 28]:
-        tabla = get_test_errors_by_partition(csv_path, k)
-        print(tabla)
+    #for k in [2, 3, 15, 5, 28]:
+    #    tabla = get_test_errors_by_partition(csv_path, k)
+    #    print(tabla)
 
